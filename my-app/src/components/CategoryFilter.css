@@ -1,0 +1,25 @@
+.categoryFilter {
+    display:flex;
+    gap:12px;
+    overflow-x:auto;
+    padding:15px 20px;
+}
+.categoryFilter button {
+    border: none;
+    padding: 8px 18px;
+    border-radius: 999px;
+    cursor: pointer;
+    white-space: nowrap;
+    font-size: 14px;
+}
+.categoryFilter button:hover {
+    transform: translateY(-2px);
+}
+.notActive {
+    background-color: #f1f1f1;
+    color: black;
+}
+.active {
+    background-color: rgb(68, 4, 4);
+    color: white;
+}

@@ -1,0 +1,33 @@
+.recipeGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.skeletonCard {
+    padding: 15px;
+    border-radius: 15px;
+    background-color: #eee;
+}
+.skeletonImage {
+    width: 100%;
+    height: 200px;
+    border-radius: 10px;
+    background-color: #ddd;
+}
+.skeletonText {
+    height: 15px;
+    width: 80%;
+    margin-top: 15px;
+    background-color: #ddd;
+    border-radius: 5px;
+}
+
+.skeletonText.title {
+    width: 90%;
+    height: 20px;
+}
+
+.skeletonText.small {
+    width: 50%;
+}
