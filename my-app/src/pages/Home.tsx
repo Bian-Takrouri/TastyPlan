@@ -5,6 +5,8 @@ import useDebounce from "../hooks/useDebounce"
 import LoadingSkeleton from "../components/LoadingSkeleton";
 import SearchTheMeal, { getMealsByCategory, getMealsByOrigin, getRandomMeal } from "../services/APImeal";
 import RecipeModal from "../components/RecipeModal";
+import SpecificRecipe from "../components/SpecificRecipe";
+import { getSpecificRecipe } from "../services/APImeal";
 import "./Home.css";
 
 type Props = {
@@ -18,6 +20,8 @@ function Home({ query, category, origin }: Props) {
     const [loading, setLoading] = useState(false);
     const [randomMeal, setRandomMeal] = useState<Recipe | null>(null);
     const [showModal, setShowModal] = useState(false);
+    const [specificMeal, setSpecificMeal] = useState<Recipe | null>(null);
+    const [showSpecificMeal, setShowSpecificMeal] = useState(false);
 
     const debouncedQuery = useDebounce(query);
     useEffect(() => {
@@ -60,11 +64,25 @@ function Home({ query, category, origin }: Props) {
             setLoading(false);
         }
     }
+    const handleRecipeClick = async (id:string) => {
+        try {
+            setLoading(true);
+            const meal = await getSpecificRecipe(id);
+            setSpecificMeal(meal);
+            setShowSpecificMeal(true);
+        } catch (error) {
+            console.error(error);
+        }
+        finally {
+            setLoading(false);
+        }
+    }
     return (
         <div>
             <button onClick={handleRandomMeal} className="Surprise">Surprise Me ! 🎁🎉</button>
-            {loading ? (<LoadingSkeleton />) : (<AllRecipeCard meals={meals} />)}
+            {loading ? (<LoadingSkeleton />) : (<AllRecipeCard meals={meals} onRecipeClick={handleRecipeClick} />)}
             {showModal && (<RecipeModal meal={randomMeal} closeModal={() => setShowModal(false)} />)}
+            {showSpecificMeal && (<SpecificRecipe meal={specificMeal} closeModal={() => setShowSpecificMeal(false)} />)}
         </div>
     );
 }

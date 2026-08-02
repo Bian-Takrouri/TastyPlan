@@ -1,6 +1,7 @@
 import type { Recipe } from "../data/meals";
+import "./RecipeModal.css";
 type Props={
-    meal: Recipe|null;
+    meal: Recipe|null;  
     closeModal:()=>void;
 }
 function SpecificRecipe({meal, closeModal}:Props){

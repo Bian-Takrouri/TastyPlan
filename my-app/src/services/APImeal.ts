@@ -40,5 +40,5 @@ export async function getRandomMeal() {
 export async function getSpecificRecipe(id : string){
     const response = await fetch(`${URL}/lookup.php?i=${id}`);
     const data = await response.json();
-    return data.meals;
+    return data.meals[0];
 }
