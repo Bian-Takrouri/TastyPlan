@@ -4,12 +4,12 @@ import type { Category } from "../data/meals";
 import "./CategoryFilter.css";
 
 type Props ={
+    value:string;
     onCategorySelect : (category : string)=> void ;
 }
 
-export function CategoryFilter({onCategorySelect}:Props){
+export function CategoryFilter({value,onCategorySelect}:Props){
     const [allcategory , setallcategory]=useState<Category[]>([]);
-    const [selectedCategory, setSelectedCategory] = useState("");
     
     useEffect(()=>{
         async function fetchCategories() {
@@ -24,8 +24,8 @@ export function CategoryFilter({onCategorySelect}:Props){
             {
                 allcategory.map((cat)=>(
                     <button key={cat.idCategory} 
-                    className={selectedCategory===cat.strCategory? "active" : "notActive"}
-                    onClick={()=> {setSelectedCategory(cat.strCategory) ;onCategorySelect(cat.strCategory)}} > 
+                    className={value===cat.strCategory? "active" : "notActive"}
+                    onClick={()=> {onCategorySelect(cat.strCategory)}} > 
                     {cat.strCategory}
                     </button>
                 ))

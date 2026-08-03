@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, type Dispatch } from "react";
 import AllRecipeCard from "../components/AllRecipeCard";
 import type { Recipe } from "../data/meals";
 import useDebounce from "../hooks/useDebounce"
@@ -7,15 +7,17 @@ import SearchTheMeal, { getMealsByCategory, getMealsByOrigin, getRandomMeal } fr
 import RecipeModal from "../components/RecipeModal";
 import SpecificRecipe from "../components/SpecificRecipe";
 import { getSpecificRecipe } from "../services/APImeal";
+import type {mealPlannerAction } from "../reducer/mealPlannerReducer";
 import "./Home.css";
 
 type Props = {
     query: string;
     category: string;
     origin: string;
+    dispatch:Dispatch<mealPlannerAction>;
 };
 
-function Home({ query, category, origin }: Props) {
+function Home({ query, category, origin ,dispatch }: Props) {
     const [meals, setmeals] = useState<Recipe[]>([]);
     const [loading, setLoading] = useState(false);
     const [randomMeal, setRandomMeal] = useState<Recipe | null>(null);
@@ -82,7 +84,7 @@ function Home({ query, category, origin }: Props) {
             <button onClick={handleRandomMeal} className="Surprise">Surprise Me ! 🎁🎉</button>
             {loading ? (<LoadingSkeleton />) : (<AllRecipeCard meals={meals} onRecipeClick={handleRecipeClick} />)}
             {showModal && (<RecipeModal meal={randomMeal} closeModal={() => setShowModal(false)} />)}
-            {showSpecificMeal && (<SpecificRecipe meal={specificMeal} closeModal={() => setShowSpecificMeal(false)} />)}
+            {showSpecificMeal && (<SpecificRecipe meal={specificMeal} closeModal={() => setShowSpecificMeal(false)} dispatch={dispatch} />)}
         </div>
     );
 }

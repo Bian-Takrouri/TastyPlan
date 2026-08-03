@@ -13,6 +13,7 @@
     top: 0;
     background-color: bisque;
     z-index: 1000;
+    height: 120px;
 }
 .logoImg {
     width: 270px;

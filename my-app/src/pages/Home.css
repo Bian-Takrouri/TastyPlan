@@ -8,9 +8,9 @@
    height: 50px;
    width: 100px;
    padding: 10px;
-   margin-top: 20px;
    margin-left: 20px;
    cursor: pointer;
    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
    font-size: small;
+   transform: translateY(15px);
 }

@@ -3,13 +3,12 @@ import { getOrigins } from "../services/APImeal";
 import type { Origin } from "../data/meals";
 import "./OriginFilter.css";
 type Props ={
+    value:string;
     onOriginSelect : (origin : string)=> void ;
 }
 
-export function OriginFilter({onOriginSelect}:Props){
+export function OriginFilter({value,onOriginSelect}:Props){
     const [allOrigin , setallorigin]=useState<Origin[]>([]);
-    const [selectedOrigin, setSelectedOrigin] = useState("");
-    {/*const [flags, setflags]=useState<Record<string,string>>({});*/}
     useEffect(()=>{
         async function fetchOrigins() {
             const data = await getOrigins() ;
@@ -23,8 +22,8 @@ export function OriginFilter({onOriginSelect}:Props){
             {
                 allOrigin.map((origin)=>(
                     <button key={origin.strArea} 
-                    className={selectedOrigin===origin.strArea? "active" : "notActive"}
-                    onClick={()=> {setSelectedOrigin(origin.strArea) ;onOriginSelect(origin.strArea)}} > 
+                    className={value===origin.strArea? "active" : "notActive"}
+                    onClick={()=> {onOriginSelect(origin.strArea)}} > 
                     {origin.strArea}
                     </button>
                 ))

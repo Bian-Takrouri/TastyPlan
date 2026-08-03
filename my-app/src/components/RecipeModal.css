@@ -1,29 +1,80 @@
-.container{
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,0.5);
-    display:flex;
-    justify-content:center;
-    align-items:center;
+.container {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
     z-index: 2000;
 }
-.modal{
-    background:white;
-    width:500px;
-    max-height:80vh;
-    overflow:auto;
-    padding:20px;
-    border-radius:15px;
+.modal {
+    position: relative;
+    background: white;
+    width: 500px;
+    max-height: 80vh;
+    overflow: auto;
+    padding: 20px;
+    border-radius: 15px;
 }
-.modal img{
-    width:100%;
-    border-radius:10px;
+.imageContainer {
+    position: relative;
 }
-.close{
-    float:right;
-    border:none;
-    background:red;
-    color:white;
-    padding:5px 10px;
-    cursor:pointer;
+.imageContainer > img {
+    width: 100%;
+    border-radius: 10px;
+    display: block;
+}
+.close {
+    position: absolute;
+    top: 35px;
+    right: 35px;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: none;
+    border-radius: 50%;
+    background: white;
+    color: black;
+    font-size: 22px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 200;
+}
+.heartIcon {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: white;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 100;
+}
+.heartIcon img {
+    width: 30px;
+    height: 30px;
+}
+.ingredientsList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.selectDay{
+    margin-left: 15px;
+    border-radius: 25px;
+    cursor: pointer;
+}
+.addButton{
+    cursor: pointer;
+    margin-left: 10px;
+    border-radius: 25px;
+    background-color:rgba(95, 39, 48, 0.871);
+    color: rgb(235, 222, 222);
+    
 }

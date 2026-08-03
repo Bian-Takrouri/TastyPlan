@@ -1,17 +1,12 @@
-import { useState, useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import "./SearchBar.css"
 
 type Props = {
+    value: string;
     searchForValue: (value: string) => void;
-}
-function SearchBar({ searchForValue }: Props) {
-    const [input, setinput] = useState("");
+};
+function SearchBar({value, searchForValue }: Props) {
     const inputRefrance = useRef<HTMLInputElement>(null);
-    function handler(e: React.ChangeEvent<HTMLInputElement>) {
-        setinput(e.target.value);
-        searchForValue(e.target.value);
-    }
-
     useEffect(
         () => {
         function focusSearchBar(e : KeyboardEvent) {
@@ -29,7 +24,8 @@ function SearchBar({ searchForValue }: Props) {
 return (
     <div className="search">
         <form>
-            <input type="text" value={input} onChange={handler} ref={inputRefrance} placeholder="Search recipes..." />
+            <input type="text" value={value} ref={inputRefrance} placeholder="Search recipes..."
+            onChange={(e)=>searchForValue(e.target.value)} />
         </form>
     </div>
 

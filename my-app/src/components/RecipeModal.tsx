@@ -18,9 +18,9 @@ function RecipeModal({meal, closeModal}:Props){
                     src={meal.strMealThumb}
                     alt={meal.strMeal}/>
                 <h2>{meal.strMeal}</h2>
-                <p>Category: {meal.strCategory}</p>
-                <p>Origin:{meal.strArea}</p>
-                <p>{meal.strInstructions}</p>
+                <h3>Category: </h3><p>{meal.strCategory}</p>
+                <h3>Origin:</h3><p>{meal.strArea}</p>
+                <h3>Instructions:</h3><p>{meal.strInstructions}</p>
             </div>
         </div>
     )
