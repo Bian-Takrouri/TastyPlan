@@ -4,8 +4,19 @@
     padding: 0;
 }
 .hallApp {
+    background: #ffffff;
+    color: #222;
+    transition: background-color 0.3s ease, color 0.3s ease;
     padding-top: 110px;
 }
 .CategoriesName , .OriginsName{
     padding-left: 20px;
+}
+.hallApp.dark {
+    background: #121212;
+    color: #674e4e;
+}
+.hallApp.light {
+    background: #ffffff;
+    color: #222;
 }

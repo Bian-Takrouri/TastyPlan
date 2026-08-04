@@ -3,11 +3,11 @@
     gap: 10px;
     overflow-x: auto;
     padding: 15px 20px;
-    scrollbar-width: none;
+    /*scrollbar-width: none;*/
 }
-.originFilter::-webkit-scrollbar {
+/*.originFilter::-webkit-scrollbar {
     display: none;
-}
+}*/
 .originFilter button {
     border: none;
     background-color: #f1f1f1;

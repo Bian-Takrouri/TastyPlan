@@ -7,8 +7,10 @@ import { CategoryFilter } from "./components/CategoryFilter";
 import {OriginFilter } from "./components/OriginFilter";
 import {MealPlanner} from "./components/MealPlanner";
 import {mealPlannerReducer, initialState} from "./reducer/mealPlannerReducer";
+import { useTheme } from "./context/ThemeContext";
 
 function App() {
+  const {theme}=useTheme();
   const [searchMeal, setsearchMeal] = useState("");
   const[selectedCategory , setselectedCategory]=useState("")
   const[selectedOrigin , setselectedOrigin]=useState("")
@@ -19,7 +21,7 @@ function App() {
   const handleOrigin = (origin: string) => {setselectedOrigin(origin);setselectedCategory("");setsearchMeal("");};
     
   return (
-    <div className="hallApp">
+    <div className={`hallApp ${theme}`}>
       <Header value={searchMeal}searchForValue={handleSearch} />
       <Home query={searchMeal} category={selectedCategory} origin={selectedOrigin} dispatch={dispatch}/>
       <h1 className="CategoriesName">Categories Filter</h1><CategoryFilter value={selectedCategory} onCategorySelect={handleCategory}/>

@@ -49,3 +49,15 @@
     text-align:center;
     font-weight:bold;
 }
+.dark .dayCard h3,
+.dark .dayCard p,
+.dark .dayCard .noMealSelected {
+    color: black;
+}
+.dark .dayCard button {
+    color: black;
+}
+.dark .plannedMeal p,
+.dark .noMealSelected {
+    color: black;
+}

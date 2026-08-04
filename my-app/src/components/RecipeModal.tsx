@@ -1,22 +1,24 @@
 import type { Recipe } from "../data/meals";
 import "./RecipeModal.css";
 type Props = {
-    meal: Recipe |null;
-    closeModal:()=>void;
+    meal: Recipe | null;
+    closeModal: () => void;
 };
-function RecipeModal({meal, closeModal}:Props){
-    if(!meal) 
+function RecipeModal({ meal, closeModal }: Props) {
+    if (!meal)
         return null;
     return (
         <div className="container">
             <div className="modal">
-                <button 
+                <button
                     className="close"
                     onClick={closeModal}
                 >X</button>
-                <img 
-                    src={meal.strMealThumb}
-                    alt={meal.strMeal}/>
+                <div className="imageContainer">
+                    <img
+                        src={meal.strMealThumb}
+                        alt={meal.strMeal} />
+                </div>
                 <h2>{meal.strMeal}</h2>
                 <h3>Category: </h3><p>{meal.strCategory}</p>
                 <h3>Origin:</h3><p>{meal.strArea}</p>

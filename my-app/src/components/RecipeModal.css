@@ -78,3 +78,37 @@
     color: rgb(235, 222, 222);
     
 }
+
+.dark .modal {
+    background: #1f1f1f;
+    color: white;
+}
+.dark .modal h2,
+.dark .modal h3,
+.dark .modal p,
+.dark .modal li,
+.dark .modal label,
+.dark .modal ol,
+.dark .modal ul {
+    color: white;
+}
+.dark .close {
+    background: #333;
+    color: white;
+}
+.dark .heartIcon {
+    background: #554d4d;
+}
+.dark .selectDay {
+    background: #333;
+    color: white;
+    border: 1px solid #666;
+}
+.dark .selectDay option {
+    background: #333;
+    color: white;
+}
+.dark .addButton {
+    background: #8b3f4b;
+    color: white;
+}

@@ -6,7 +6,6 @@ type Props ={
     value:string;
     onOriginSelect : (origin : string)=> void ;
 }
-
 export function OriginFilter({value,onOriginSelect}:Props){
     const [allOrigin , setallorigin]=useState<Origin[]>([]);
     useEffect(()=>{
