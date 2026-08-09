@@ -8,26 +8,28 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 20px 40px;
     position: fixed;
     top: 0;
+    left: 0;
     background-color: bisque;
     z-index: 1000;
     height: 100px;
+    transition: background-color 0.3s ease;
 }
 .dark .HeaderContainer {
     background-color: rgb(142, 77, 77);
 }
 .logoImg {
-    width: 270px;
-    height: 130px;
+    width: 220px;
+    height: auto;
 }
 .logo{
-    width : 20%;
+    width: 25%;
+    display: flex;
+    align-items: center;
 }
-
 .search{
-    width: 60%;
+    width: 35%;
     display: flex;
     justify-content: center;
 }
@@ -40,13 +42,66 @@
     font-size: 16px;
 }
 .mood{
-    width: 20%;
+    width: 40%;
     display: flex;
     justify-content: flex-end;
-    gap: 10px;
+    align-items: center;
+    gap: 8px;
+    margin-right: 10px;
 }
 .mood img{
     width:40px;
     height:40px;
     cursor:pointer;
+}
+@media (max-width: 768px) {
+    .HeaderContainer {
+        flex-direction: column;
+        height: auto;
+        position: fixed;
+        gap: 5px;
+        max-height: 250px;
+        padding: 15px;
+    }
+    .logo {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+    .logoImg {
+        width: 180px;
+        height: auto;
+    }
+    .search {
+        width: 100%;
+    }
+    .search input {
+        width: 100%;
+        padding: 0 10px;
+    }
+    .mood {
+        width: 100%;
+        justify-content: center;
+    }
+    .favoriteButton {
+        font-size: 12px;
+        padding: 8px 12px;
+    }
+
+}
+.favoriteButton {
+    border: none;
+    border-radius: 25px;
+    padding: 10px 15px;
+    cursor: pointer;
+    background-color: bisque;
+    font-size: 14px;
+    transition: 0.3s;
+}
+.favoriteButton:hover {
+    transform: scale(1.05);
+}
+.dark .favoriteButton {
+    background-color: rgb(142, 77, 77);
+    color: white;
 }

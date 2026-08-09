@@ -1,16 +1,49 @@
 .Surprise {
-   display: flex;
-   justify-content: center;
-   align-items: center;
-   background-color: rgb(255, 212, 144);
-   border: none;
-   border-radius: 30px;
-   height: 50px;
-   width: 100px;
-   padding: 10px;
-   margin-left: 20px;
-   cursor: pointer;
-   font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
-   font-size: small;
-   transform: translateY(15px);
+    padding: 10px 10px;
+    margin-left: 20px;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    background-color: rgb(255, 212, 144);
+    font-size: 14px;
+    transition: 0.3s;
+    transform: translateY(15px);
+}
+h2,
+h4 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.errorMessage {
+    max-width: 700px;
+    margin: 20px auto;
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+    background-color: #ffe5e5;
+    color: #b00020;
+    border: 1px solid #ffb3b3;
+    font-weight: bold;
+}
+
+.dark .errorMessage {
+    background-color: #4b1f1f;
+    color: #ffd6d6;
+    border-color: #8b3f3f;
+}
+
+@media(max-width:768px) {
+    .Surprise {
+        transform: translateY(-5px);
+    }
+    h2,
+    h4 {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        font-size: 14px;
+    }
 }

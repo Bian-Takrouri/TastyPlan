@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
+import { createContext, useContext,type ReactNode } from "react";
+import {useLocalStorage} from "../hooks/useLocalStorage";
 type ThemeContextType = {
     theme: "light" | "dark";
     toggleTheme: () => void;
@@ -8,7 +9,7 @@ type Props = {
     children: ReactNode;
 };
 export function ThemeProvider({children}: Props) {
-    const [theme, setTheme] = useState<"light" | "dark">("light");
+    const [theme, setTheme] = useLocalStorage<"light"|"dark">("theme","light");
     function toggleTheme(){
         setTheme((prev)=>prev === "light"?"dark":"light");
     }

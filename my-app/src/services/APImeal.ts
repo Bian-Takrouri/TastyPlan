@@ -1,44 +1,35 @@
-const URL ="https://www.themealdb.com/api/json/v1/1";
+import axios from "axios";
 
-async function SearchTheMeal(query : string){
-    const response = await fetch(`${URL}/search.php?s=${query}`);
-    const data = await response.json();
-    return data.meals;
-}
-export default SearchTheMeal;
+class APIMeal {
+    private URL = "https://www.themealdb.com/api/json/v1/1";
 
-export async function getCategories() {
-    const response = await fetch(`${URL}/categories.php`);
-    const data = await response.json();
-    return data.categories;
-}
-
-export async function getMealsByCategory(category:string){
-    const response = await fetch(`${URL}/filter.php?c=${category}`);
-    const data = await response.json();
-    return data.meals;
-}
-export async function getOrigins(){
-    const response = await fetch(`${URL}/list.php?a=list`);
-    const data = await response.json();
-    return data.meals;
-}
-export async function getMealsByOrigin(area: string){
-    const response = await fetch(`${URL}/filter.php?a=${area}`);
-    const data = await response.json();
-    return data.meals;
-}
-
-export async function getRandomMeal() {
-    const response = await fetch(`${URL}/random.php`);
-    if (!response.ok) {
-        throw new Error("Failed to fetch random meal");
+    async SearchTheMeal(query: string) {
+        const response = await axios.get(`${this.URL}/search.php?s=${query}`);
+        return response.data.meals;
     }
-    const data = await response.json();
-    return data.meals[0];
+    async getCategories() {
+        const response = await axios.get(`${this.URL}/categories.php`);
+        return response.data.categories;
+    }
+    async getMealsByCategory(category: string) {
+        const response = await axios.get(`${this.URL}/filter.php?c=${category}`);
+        return response.data.meals;
+    }
+    async getOrigins() {
+        const response = await axios.get(`${this.URL}/list.php?a=list`);
+        return response.data.meals;
+    }
+    async getMealsByOrigin(area: string) {
+        const response = await axios.get(`${this.URL}/filter.php?a=${area}`);
+        return response.data.meals;
+    }
+    async getRandomMeal() {
+        const response = await axios.get(`${this.URL}/random.php`);
+        return response.data.meals[0];
+    }
+    async getSpecificRecipe(id: string) {
+        const response = await axios.get(`${this.URL}/lookup.php?i=${id}`);
+        return response.data.meals[0];
+    }
 }
-export async function getSpecificRecipe(id : string){
-    const response = await fetch(`${URL}/lookup.php?i=${id}`);
-    const data = await response.json();
-    return data.meals[0];
-}
+export default APIMeal ;

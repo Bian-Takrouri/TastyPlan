@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getCategories } from "../services/APImeal";
+import MealAPI from "../services/APImeal";
 import type { Category } from "../data/meals";
 import "./CategoryFilter.css";
 
@@ -9,11 +9,11 @@ type Props ={
 }
 
 export function CategoryFilter({value,onCategorySelect}:Props){
+    const mealAPI =new MealAPI();
     const [allcategory , setallcategory]=useState<Category[]>([]);
-    
     useEffect(()=>{
         async function fetchCategories() {
-            const data = await getCategories() ;
+            const data = await mealAPI.getCategories() ;
             setallcategory(data);
         }
         fetchCategories();

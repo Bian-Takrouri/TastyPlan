@@ -37,7 +37,7 @@ export function MealPlanner({mealPlannerState,dispatch}:Props) {
                                 <p>{mealPlannerState[day]?.strMeal}</p>
                                 <button onClick={()=>{ dispatch({ type:"Remove",day:day});}}>Remove</button>
                             </div>
-                                : <div className="noMealSelected">no meal selected</div>
+                                : <div className="noSelectedMeal">no meal selected</div>
 
 
                         }

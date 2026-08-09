@@ -4,6 +4,8 @@
     padding: 0;
 }
 .hallApp {
+    min-height: 100vh;
+    width: 100%;
     background: #ffffff;
     color: #222;
     transition: background-color 0.3s ease, color 0.3s ease;
@@ -19,4 +21,9 @@
 .hallApp.light {
     background: #ffffff;
     color: #222;
+}
+@media(max-width:768px){
+    .hallApp {
+        padding-top:240px;
+    }
 }

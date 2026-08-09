@@ -7,8 +7,7 @@
 }
 .plannerGrid{
     display:grid;
-    grid-template-columns:
-    repeat(auto-fit,minmax(100px,1fr));
+    grid-template-columns:repeat(auto-fit,minmax(100px,1fr));
     gap:20px;
 }
 .dayCard{
@@ -29,7 +28,7 @@
     align-items:center;
     border:2px dashed #ccc;
     border-radius:10px;
-    color:#888;
+    color:#878686;
     font-size:14px;
 }
 .clearButton{
@@ -54,8 +53,11 @@
 .dark .dayCard .noMealSelected {
     color: black;
 }
+
+.dark .clearButton,
 .dark .dayCard button {
-    color: black;
+    background:#aa7441;
+    color:white;
 }
 .dark .plannedMeal p,
 .dark .noMealSelected {
