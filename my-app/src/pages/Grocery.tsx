@@ -1,13 +1,16 @@
 import { GroceryList } from "../components/GroceryList";
 import type { mealPlannerState } from "../reducer/mealPlannerReducer";
-type Props={
+
+type Props = {
     mealPlannerState: mealPlannerState;
-}
-function Grocery({mealPlannerState}:Props){
-    return(
+};
+
+function Grocery({ mealPlannerState }: Props) {
+    return (
         <div className="groceryPage">
-            <GroceryList mealPlannerState={mealPlannerState}/>
+            <GroceryList mealPlannerState={mealPlannerState} />
         </div>
     );
 }
+
 export default Grocery;

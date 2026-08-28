@@ -7,7 +7,6 @@ type Props ={
     value:string;
     onCategorySelect : (category : string)=> void ;
 }
-
 export function CategoryFilter({value,onCategorySelect}:Props){
     const mealAPI =new MealAPI();
     const [allcategory , setallcategory]=useState<Category[]>([]);

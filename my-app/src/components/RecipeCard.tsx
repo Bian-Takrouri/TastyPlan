@@ -1,12 +1,12 @@
 import type { Recipe } from "../data/meals";
 import "./RecipeCard.css";
 
-type Props={
-     meal: Recipe;
-     onClick:()=>void;
+type Props = {
+    meal: Recipe;
+    onClick: () => void;
 }
 
-export function RecipeCard({meal , onClick}:Props) {
+export function RecipeCard({ meal, onClick }: Props) {
     return (
         <div className="card" onClick={onClick}>
             <img src={meal.strMealThumb} alt={meal.strMeal} />

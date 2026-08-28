@@ -5,6 +5,7 @@
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     width: 100%;
     cursor: pointer;
+    transition: 0.3s ease;
 }
 .card img {
     width: 100%;
@@ -25,5 +26,16 @@
 }
 .card:hover {
     transform: translateY(-5px);
-    transition: 0.3s ease;
+}
+.hallApp.dark .card {
+    background: #302629;
+    color: #f8eeee;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+.hallApp.dark .card h2 {
+    color: #f5eeee;
+}
+
+.hallApp.dark .card h3 {
+    color: #c5b8bb;
 }

@@ -1,0 +1,76 @@
+.buttonStyle,
+.addButton,
+.clearButton,
+.buttonRemove {
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: transform 0.3s ease,
+        background-color 0.3s ease,
+        color 0.3s ease;
+}
+
+.buttonStyle,
+.addButton {
+    background-color: #6B0F2A;
+    color: #FFF8F5;
+    padding: 8px 16px;
+}
+.buttonStyle:hover,
+.addButton:hover {
+    transform: scale(1.05);
+    background-color: #C6A15B;
+    color: #2D2024;
+}
+
+.clearButton,
+.buttonRemove {
+    background-color: #560318;
+    color: #FFF8F5;
+    padding: 8px 16px;
+}
+
+.clearButton:hover,
+.buttonRemove:hover {
+    transform: scale(1.03);
+    background-color: #6B0F2A;
+}
+
+.clearButton {
+    margin-bottom: 20px;
+    font-size: 15px;
+}
+
+.buttonRemove {
+    margin-top: 3px;
+    font-size: 12px;
+}
+
+.addButton {
+    margin-left: 10px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+}
+
+.hallApp.dark .buttonStyle,
+.hallApp.dark .addButton {
+    background-color: #6B0F2A;
+    color: #FFF8F5;
+}
+
+.hallApp.dark .buttonStyle:hover,
+.hallApp.dark .addButton:hover {
+    background-color: #C6A15B;
+    color: #211A1D;
+}
+
+.hallApp.dark .clearButton,
+.hallApp.dark .buttonRemove {
+    background-color: #560318;
+    color: #FFF8F5;
+}
+
+.hallApp.dark .clearButton:hover,
+.hallApp.dark .buttonRemove:hover {
+    background-color: #6B0F2A;
+}

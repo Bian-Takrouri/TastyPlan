@@ -1,7 +1,7 @@
 .container {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0, 0, 0, 0.5);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -10,16 +10,17 @@
 .modal {
     position: relative;
     background: white;
+    color: #222;
     width: 500px;
     max-height: 80vh;
     overflow: auto;
-    padding: 20px;
+    padding: 25px;
     border-radius: 15px;
 }
 .imageContainer {
     position: relative;
 }
-.imageContainer >img {
+.imageContainer > img {
     width: 100%;
     border-radius: 10px;
     display: block;
@@ -65,54 +66,43 @@
     padding: 0;
     margin: 0;
 }
-.selectDay{
+.selectDay {
     margin-left: 15px;
     border-radius: 25px;
     cursor: pointer;
+    padding: 8px 12px;
 }
-.addButton{
-    cursor: pointer;
-    margin-left: 10px;
-    border-radius: 25px;
-    background-color:rgba(95, 39, 48, 0.871);
-    color: rgb(235, 222, 222);
-    
+.hallApp.dark .modal {
+    background: #241c1f;
+    color: #f5eeee;
 }
 
-.dark .modal {
-    background: #1f1f1f;
-    color: white;
+.hallApp.dark .modal h2,
+.hallApp.dark .modal h3,
+.hallApp.dark .modal p,
+.hallApp.dark .modal li,
+.hallApp.dark .modal label,
+.hallApp.dark .modal ol,
+.hallApp.dark .modal ul {
+    color: #f5eeee;
 }
-.dark .modal h2,
-.dark .modal h3,
-.dark .modal p,
-.dark .modal li,
-.dark .modal label,
-.dark .modal ol,
-.dark .modal ul {
-    color: white;
+.hallApp.dark .close {
+    background: #2b2225;
+    color: #f5eeee;
 }
-.dark .close {
-    background: #333;
-    color: white;
+.hallApp.dark .heartIcon {
+    background: #2b2225;
 }
-.dark .heartIcon {
-    background: #554d4d;
+.hallApp.dark .selectDay {
+    background: #2b2225;
+    color: #f5eeee;
+    border: 1px solid #4a383d;
 }
-.dark .selectDay {
-    background: #333;
-    color: white;
-    border: 1px solid #666;
+.hallApp.dark .selectDay option {
+    background: #2b2225;
+    color: #f5eeee;
 }
-.dark .selectDay option {
-    background: #333;
-    color: white;
-}
-.dark .addButton {
-    background: #8b3f4b;
-    color: white;
-}
-@media(max-width:768px){
+@media (max-width: 768px) {
     .modal {
         width: 90%;
         max-height: 85vh;

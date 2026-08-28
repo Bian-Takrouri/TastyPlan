@@ -1,13 +1,15 @@
-*{
+* {
     margin: 0;
     box-sizing: border-box;
 }
+
 .categoryFilter {
-    display:flex;
-    gap:12px;
-    overflow-x:auto;
-    padding:15px 20px;
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding: 15px 20px;
 }
+
 .categoryFilter button {
     border: none;
     padding: 8px 18px;
@@ -15,15 +17,29 @@
     cursor: pointer;
     white-space: nowrap;
     font-size: 14px;
+    transition: 0.3s ease;
 }
+
 .categoryFilter button:hover {
     transform: translateY(-2px);
 }
+
 .notActive {
     background-color: #f1f1f1;
     color: black;
 }
+
 .active {
     background-color: rgb(68, 4, 4);
     color: white;
+}
+
+.hallApp.dark .notActive {
+    background-color: #2b2225;
+    color: #f5eeee;
+}
+
+.hallApp.dark .active {
+    background-color: rgb(255, 212, 144);
+    color: #2a160e;
 }

@@ -6,7 +6,7 @@
     max-width: 700px;
     border-radius: 20px;
     background: #fff;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
 }
 .groceryContainer h2 {
     text-align: center;
@@ -24,7 +24,7 @@
     border-radius: 20px;
     border: none;
     cursor: pointer;
-    background: #8b3f4b;
+    background: #780b21;
     color: white;
     transition: 0.3s;
 }
@@ -67,24 +67,17 @@
     border-radius: 20px;
     border: none;
     cursor: pointer;
-    background: #8b3f4b;
-    color:white;
+    background: #780b21;
+    color: white;
+    transition: 0.3s;
+}
+.addGrocery button:hover {
+    background: #d4b13f;
+    color: #171315;
 }
 .completed {
     text-decoration: line-through;
     opacity: 0.6;
-}
-.dark .groceryContainer {
-    background:#1f1f1f;
-    color:white;
-}
-.dark .groceryList li {
-    background:#333333;
-}
-.dark .addGrocery input {
-    background:#222;
-    color:white;
-    border-color:#555;
 }
 .deleteGrocery {
     border: none;
@@ -92,20 +85,50 @@
     cursor: pointer;
     font-size: 18px;
 }
-@media(max-width:768px){
+.hallApp.dark .groceryContainer {
+    background: #241c1f;
+    color: #f5eeee;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.35);
+}
+.hallApp.dark .groceryList li {
+    background: #2b2225;
+    color: #f5eeee;
+}
+.hallApp.dark .groceryList label {
+    color: #f5eeee;
+}
+.hallApp.dark .addGrocery input {
+    background: #2b2225;
+    color: #f5eeee;
+    border-color: #4a383d;
+}
+.hallApp.dark .addGrocery input::placeholder {
+    color: #c5b8bb;
+}
+
+.hallApp.dark .filterButtons button,
+.hallApp.dark .addGrocery button {
+    background: #521523;
+    color: white;
+}
+.hallApp.dark .deleteGrocery {
+    color: #f5eeee;
+}
+@media (max-width: 768px) {
     .addGrocery {
-        flex-direction:column;
+        flex-direction: column;
     }
+
     .addGrocery button {
-        width:100%;
+        width: 100%;
     }
 }
-@media(max-width:350px){
+@media (max-width: 350px) {
     .filterButtons {
         flex-direction: column;
-        align-items:center;
+        align-items: center;
     }
     .filterButtons button {
-        width:80%;
+        width: 80%;
     }
 }

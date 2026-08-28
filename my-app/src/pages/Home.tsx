@@ -29,7 +29,7 @@ function Home({ query, category, origin, dispatch }: Props) {
         async function getMeal() {
             setError("");
             if (debouncedQuery.trim() === "" && category.trim() === "" && origin.trim() === "") {
-                setMessage("No recipes found.")
+                setMessage(" ")
                 const dessert = await mealAPI.getMealsByCategory("Dessert");
                 setmeals(dessert);
                 return;

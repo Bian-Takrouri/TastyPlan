@@ -6,6 +6,7 @@ export type Recipe = {
     strMealThumb: string;
     strCountry: string;
     strInstructions: string;
+
     strIngredient1?: string;
     strIngredient2?: string;
     strIngredient3?: string;
@@ -26,6 +27,7 @@ export type Recipe = {
     strIngredient18?: string;
     strIngredient19?: string;
     strIngredient20?: string;
+
     strMeasure1?: string;
     strMeasure2?: string;
     strMeasure3?: string;
@@ -46,19 +48,22 @@ export type Recipe = {
     strMeasure18?: string;
     strMeasure19?: string;
     strMeasure20?: string;
-    strYoutube:string ;
-    
+
+    strYoutube: string;
 };
+
 export type Category = {
     idCategory: string;
     strCategory: string;
     strCategoryThumb: string;
     strCategoryDescription: string;
 };
+
 export type Origin = {
     strMeal: string;
     strMealThumb: string;
     idMeal: string;
     strArea: string;
     strCountry: string;
-}
+    flagUrl?: string | null;
+};

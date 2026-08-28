@@ -1,4 +1,4 @@
-*{
+* {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
@@ -6,24 +6,25 @@
 .hallApp {
     min-height: 100vh;
     width: 100%;
-    background: #ffffff;
-    color: #222;
+    background: #211A1D;
+    color: #f8eeee;
     transition: background-color 0.3s ease, color 0.3s ease;
     padding-top: 110px;
 }
-.CategoriesName , .OriginsName{
+.CategoriesName,
+.OriginsName {
     padding-left: 20px;
 }
 .hallApp.dark {
-    background: #121212;
-    color: #674e4e;
+    background: #171315;
+    color: #f5eeee;
 }
 .hallApp.light {
     background: #ffffff;
     color: #222;
 }
-@media(max-width:768px){
+@media (max-width: 768px) {
     .hallApp {
-        padding-top:240px;
+        padding-top: 240px;
     }
 }

@@ -1,4 +1,4 @@
-*{
+* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -11,37 +11,37 @@
     position: fixed;
     top: 0;
     left: 0;
-    background-color: bisque;
+    background-color: #fff8f5;
     z-index: 1000;
     height: 100px;
     transition: background-color 0.3s ease;
-}
-.dark .HeaderContainer {
-    background-color: rgb(142, 77, 77);
 }
 .logoImg {
     width: 220px;
     height: auto;
 }
-.logo{
+.logo {
     width: 25%;
     display: flex;
     align-items: center;
 }
-.search{
+.search {
     width: 35%;
     display: flex;
     justify-content: center;
 }
 .search input {
     height: 45px;
-    width: 400px;
+    width: 350px;
     padding: 0 20px;
     border-radius: 25px;
     border: 1px solid #ccc;
     font-size: 16px;
+    background-color: white;
+    color: #222;
+    transition: 0.3s ease;
 }
-.mood{
+.mood {
     width: 40%;
     display: flex;
     justify-content: flex-end;
@@ -49,12 +49,46 @@
     gap: 8px;
     margin-right: 10px;
 }
-.mood img{
-    width:40px;
-    height:40px;
-    cursor:pointer;
+.mood img {
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
 }
-@media (max-width: 768px) {
+
+.hallApp.dark .HeaderContainer {
+    background: #3f0211;
+    border-bottom: 1px solid #7a263b;
+}
+.hallApp.dark .search input {
+    background-color: #2b2225;
+    color: #f5eeee;
+    border-color: #4a383d;
+}
+.hallApp.dark .search input::placeholder {
+    color: #c5b8bb;
+}
+.hallApp.dark .favoriteButton {
+    background-color: #350808;
+    color: #241A1D;
+    color: white
+}
+.hallApp.dark .favoriteButton:hover {
+    background-color: #E0C98A;
+}
+.favoriteButton {
+    border: none;
+    border-radius: 25px;
+    padding: 10px 15px;
+    cursor: pointer;
+    background-color: #fff0eb;
+    color: #7b263a;
+    font-size: 14px;
+    transition: 0.3s;
+}
+.favoriteButton:hover {
+    transform: scale(1.05);
+}
+@media (max-width: 830px) {
     .HeaderContainer {
         flex-direction: column;
         height: auto;
@@ -86,22 +120,27 @@
     .favoriteButton {
         font-size: 12px;
         padding: 8px 12px;
+        background-color: none;
     }
-
+    .favoriteButton {
+        font-size: 12px;
+        padding: 8px 12px;
+        background:none;
+    }
+    .hallApp.dark .favoriteButton{
+        background: none;
+    }
 }
-.favoriteButton {
-    border: none;
-    border-radius: 25px;
-    padding: 10px 15px;
-    cursor: pointer;
-    background-color: bisque;
-    font-size: 14px;
-    transition: 0.3s;
-}
-.favoriteButton:hover {
-    transform: scale(1.05);
-}
-.dark .favoriteButton {
-    background-color: rgb(142, 77, 77);
-    color: white;
+@media (max-width: 930px) {
+    .search {
+        width: 400px;
+    }
+    .search input {
+        width: 100%;
+        padding: 0 10px;
+    }
+    .favoriteButton {
+        padding: 8px 12px;
+        background:none;
+    }
 }
