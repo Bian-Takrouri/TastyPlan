@@ -17,6 +17,7 @@ import type { Recipe } from "../data/meals";
 import SpecificRecipe from "./SpecificRecipe";
 
 import {
+    clearMealPlan,
     removeMealFromPlan
 } from "../services/APIuser";
 
@@ -64,7 +65,20 @@ export function MealPlanner({
             );
         }
     };
+    const clearWeek = async () => {
+        try {
+            await clearMealPlan();
 
+            dispatch({
+                type: "ClearWeek"
+            });
+        } catch (error) {
+            console.error(
+                "Failed to clear meal plan:",
+                error
+            );
+        }
+    };
     return (
         <div className="planner">
 
@@ -72,7 +86,12 @@ export function MealPlanner({
                 <br />
                 7 Days Meal Planner
             </h2>
-
+            <button
+                className="buttonRemove"
+                onClick={clearWeek}
+            >
+                Clear Week
+            </button>
             <div className="plannerGrid">
 
                 {days.map(day => {

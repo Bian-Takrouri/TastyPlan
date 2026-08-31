@@ -1,368 +1,532 @@
-import { Router, Request, Response, NextFunction } from "express";
-import { AppDataSource } from "../data-source.js";
+import {
+    Router,
+    Request,
+    Response,
+    NextFunction
+} from "express";
+
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
+
 import { Recipe } from "../entities/Recipe.js";
 import { Category } from "../entities/Category.js";
 import { Origin } from "../entities/Origin.js";
 import { User } from "../entities/User.js";
-import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
 
 const router = Router();
 
 const JWT_SECRET =
-    process.env.JWT_SECRET || "your_super_secret_jwt_key";
+    process.env.JWT_SECRET ||
+    "your_super_secret_jwt_key";
 
-// ==========================================
-// 1. PUBLIC AUTH ROUTES
-// ==========================================
+/* =========================
+   TYPES
+========================= */
 
-router.get("/login", (req: Request, res: Response) => {
-    if (req.cookies && req.cookies.adminToken) {
+interface AdminTokenPayload {
+    id: string;
+    email: string;
+    role: string;
+}
+
+/* ==========================================
+   1. PUBLIC AUTH ROUTES
+========================================== */
+
+/* =========================
+   ADMIN LOGIN PAGE
+========================= */
+
+router.get(
+    "/login",
+    (req: Request, res: Response) => {
+
+        if (req.cookies?.adminToken) {
+
+            try {
+
+                const decoded =
+                    jwt.verify(
+                        req.cookies.adminToken,
+                        JWT_SECRET
+                    ) as AdminTokenPayload;
+
+                if (
+                    decoded.role === "admin"
+                ) {
+                    return res.redirect(
+                        "/admin/dashboard"
+                    );
+                }
+
+            } catch (error) {
+                // Invalid or expired token.
+            }
+        }
+
+        return res.render(
+            "admin-login",
+            {
+                layout: false,
+                error: null
+            }
+        );
+    }
+);
+
+/* =========================
+   ADMIN LOGIN
+========================= */
+
+router.post(
+    "/login",
+    async (
+        req: Request,
+        res: Response
+    ) => {
+
         try {
-            const decoded = jwt.verify(
-                req.cookies.adminToken,
-                JWT_SECRET
-            ) as { role?: string };
 
-            if (decoded.role === "admin") {
-                return res.redirect("/admin/dashboard");
+            const {
+                email,
+                password
+            } = req.body;
+
+            if (!email || !password) {
+
+                return res.render(
+                    "admin-login",
+                    {
+                        layout: false,
+                        error:
+                            "Email and password are required."
+                    }
+                );
             }
+
+            const user =
+                await User.findOne({
+                    email:
+                        String(email)
+                            .trim()
+                            .toLowerCase()
+                });
+
+            if (!user) {
+
+                return res.render(
+                    "admin-login",
+                    {
+                        layout: false,
+                        error:
+                            "Invalid email or password."
+                    }
+                );
+            }
+
+            const isMatch =
+                await bcrypt.compare(
+                    password,
+                    user.passwordHash
+                );
+
+            if (!isMatch) {
+
+                return res.render(
+                    "admin-login",
+                    {
+                        layout: false,
+                        error:
+                            "Invalid email or password."
+                    }
+                );
+            }
+
+            /*
+             * Only administrators
+             * can access the dashboard.
+             */
+
+            if (
+                user.role !== "admin"
+            ) {
+
+                return res.render(
+                    "admin-login",
+                    {
+                        layout: false,
+                        error:
+                            "Admin access required."
+                    }
+                );
+            }
+
+            const token =
+                jwt.sign(
+                    {
+                        id:
+                            user._id.toString(),
+
+                        email:
+                            user.email,
+
+                        role:
+                            user.role
+                    },
+                    JWT_SECRET,
+                    {
+                        expiresIn: "1d"
+                    }
+                );
+
+            res.cookie(
+                "adminToken",
+                token,
+                {
+                    httpOnly: true,
+                    sameSite: "lax",
+                    maxAge:
+                        24 *
+                        60 *
+                        60 *
+                        1000
+                }
+            );
+
+            return res.redirect(
+                "/admin/dashboard"
+            );
+
         } catch (error) {
-            // Invalid or expired token
+
+            console.error(
+                "Login Error:",
+                error
+            );
+
+            return res.render(
+                "admin-login",
+                {
+                    layout: false,
+                    error:
+                        "An unexpected error occurred."
+                }
+            );
         }
     }
+);
 
-    res.render("admin-login", {
-        layout: false,
-        error: null
-    });
-});
+/* =========================
+   LOGOUT
+========================= */
 
-router.post("/login", async (req: Request, res: Response) => {
-    try {
-        const { email, password } = req.body;
+router.get(
+    "/logout",
+    (
+        _req: Request,
+        res: Response
+    ) => {
 
-        if (!email || !password) {
-            return res.render("admin-login", {
-                layout: false,
-                error: "Email and password are required."
-            });
-        }
-
-        const userRepo = AppDataSource.getRepository(User);
-
-        const user = await userRepo.findOneBy({ email });
-
-        if (!user) {
-            return res.render("admin-login", {
-                layout: false,
-                error: "Invalid email or password."
-            });
-        }
-
-        const isMatch = await bcrypt.compare(
-            password,
-            user.passwordHash
+        res.clearCookie(
+            "adminToken"
         );
 
-        if (!isMatch) {
-            return res.render("admin-login", {
-                layout: false,
-                error: "Invalid email or password."
-            });
-        }
-
-        // Admin access is required
-        if (user.role !== "admin") {
-            return res.render("admin-login", {
-                layout: false,
-                error: "Admin access required."
-            });
-        }
-
-        const token = jwt.sign(
-            {
-                id: user.id,
-                email: user.email,
-                role: user.role
-            },
-            JWT_SECRET,
-            {
-                expiresIn: "1d"
-            }
+        return res.redirect(
+            "/admin/login"
         );
-
-        res.cookie("adminToken", token, {
-            httpOnly: true,
-            sameSite: "lax",
-            maxAge: 24 * 60 * 60 * 1000
-        });
-
-        res.redirect("/admin/dashboard");
-
-    } catch (error) {
-        console.error("Login Error:", error);
-
-        res.render("admin-login", {
-            layout: false,
-            error: "An unexpected error occurred."
-        });
     }
-});
+);
 
-router.get("/logout", (req: Request, res: Response) => {
-    res.clearCookie("adminToken");
-    res.redirect("/admin/login");
-});
-
-// ==========================================
-// 2. JWT AUTHENTICATION MIDDLEWARE
-// ==========================================
+/* ==========================================
+   2. JWT AUTHENTICATION MIDDLEWARE
+========================================== */
 
 const authenticateJWT = (
     req: Request,
     res: Response,
     next: NextFunction
 ) => {
+
     const token =
         req.cookies?.adminToken ||
-        req.headers.authorization?.split(" ")[1];
+        req.headers.authorization
+            ?.split(" ")[1];
 
     if (!token) {
-        return res.redirect("/admin/login");
+
+        return res.redirect(
+            "/admin/login"
+        );
     }
 
     try {
-        const decoded = jwt.verify(
-            token,
-            JWT_SECRET
-        ) as { id: number; email: string; role: string };
 
-        if (decoded.role !== "admin") {
-            res.clearCookie("adminToken");
-            return res.redirect("/admin/login");
+        const decoded =
+            jwt.verify(
+                token,
+                JWT_SECRET
+            ) as AdminTokenPayload;
+
+        if (
+            decoded.role !== "admin"
+        ) {
+
+            res.clearCookie(
+                "adminToken"
+            );
+
+            return res.redirect(
+                "/admin/login"
+            );
         }
 
-        (req as any).user = decoded;
+        (
+            req as Request & {
+                user?: AdminTokenPayload;
+            }
+        ).user = decoded;
 
-        next();
+        return next();
 
     } catch (error) {
-        res.clearCookie("adminToken");
-        return res.redirect("/admin/login");
+
+        res.clearCookie(
+            "adminToken"
+        );
+
+        return res.redirect(
+            "/admin/login"
+        );
     }
 };
 
-router.use(authenticateJWT);
+router.use(
+    authenticateJWT
+);
 
-// ==========================================
-// 3. DASHBOARD
-// ==========================================
+/* ==========================================
+   3. DASHBOARD
+========================================== */
 
-router.get("/dashboard", async (req: Request, res: Response) => {
-    try {
-        const recipeRepo = AppDataSource.getRepository(Recipe);
-        const userRepo = AppDataSource.getRepository(User);
-        const categoryRepo = AppDataSource.getRepository(Category);
+router.get(
+    "/dashboard",
+    async (
+        _req: Request,
+        res: Response
+    ) => {
 
-        const [
-            totalRecipes,
-            totalUsers,
-            totalCategories,
-            recentRecipes
-        ] = await Promise.all([
-            recipeRepo.count(),
-            userRepo.count(),
-            categoryRepo.count(),
+        try {
 
-            recipeRepo.find({
-                take: 5,
-                order: {
-                    id: "DESC"
-                },
-                relations: {
-                    category: true
-                }
-            })
-        ]);
-
-        res.render("admin-dashboard", {
-            stats: {
+            const [
                 totalRecipes,
                 totalUsers,
-                totalCategories
-            },
-            recentRecipes
-        });
+                totalCategories,
+                recentRecipes
+            ] = await Promise.all([
 
-    } catch (error) {
-        console.error("Dashboard error:", error);
+                Recipe.countDocuments(),
 
-        res.render("admin-dashboard", {
-            stats: {
-                totalRecipes: 0,
-                totalUsers: 0,
-                totalCategories: 0
-            },
-            recentRecipes: []
-        });
+                User.countDocuments(),
+
+                Category.countDocuments(),
+
+                Recipe
+                    .find()
+                    .populate(
+                        "category"
+                    )
+                    .sort({
+                        _id: -1
+                    })
+                    .limit(5)
+            ]);
+
+            return res.render(
+                "admin-dashboard",
+                {
+                    stats: {
+                        totalRecipes,
+                        totalUsers,
+                        totalCategories
+                    },
+
+                    recentRecipes
+                }
+            );
+
+        } catch (error) {
+
+            console.error(
+                "Dashboard error:",
+                error
+            );
+
+            return res.render(
+                "admin-dashboard",
+                {
+                    stats: {
+                        totalRecipes: 0,
+                        totalUsers: 0,
+                        totalCategories: 0
+                    },
+
+                    recentRecipes: []
+                }
+            );
+        }
     }
-});
+);
 
-// ==========================================
-// 4. RECIPES PAGE
-// ==========================================
+/* ==========================================
+   4. RECIPES PAGE
+========================================== */
 
-router.get("/recipes", async (req: Request, res: Response) => {
-    try {
-        const { sort } = req.query;
+router.get(
+    "/recipes",
+    async (
+        req: Request,
+        res: Response
+    ) => {
 
-        const orderDirection =
-            sort === "asc" ? "ASC" : "DESC";
+        try {
 
-        const recipes = await AppDataSource
-            .getRepository(Recipe)
-            .createQueryBuilder("recipe")
-            .leftJoinAndSelect(
-                "recipe.category",
-                "category"
-            )
-            .leftJoinAndSelect(
-                "recipe.origin",
-                "origin"
-            )
-            .orderBy(
-                "recipe.id",
-                orderDirection
-            )
-            .take(100)
-            .getMany();
+            const {
+                sort
+            } = req.query;
 
-        const categories =
-            await AppDataSource
-                .getRepository(Category)
-                .find();
+            const sortDirection =
+                sort === "asc"
+                    ? 1
+                    : -1;
 
-        const origins =
-            await AppDataSource
-                .getRepository(Origin)
-                .find();
-
-        res.render("admin-recipes", {
-            recipes,
-            categories,
-            origins,
-            currentSort: sort || "desc"
-        });
-
-    } catch (error) {
-        console.error("Error loading recipes:", error);
-        res.status(500).send("Error loading recipes");
-    }
-});
-
-// ==========================================
-// 5. CATEGORIES & ORIGINS PAGE
-// ==========================================
-
-router.get("/categories", async (req: Request, res: Response) => {
-    try {
-        const categoryRepo =
-            AppDataSource.getRepository(Category);
-
-        const originRepo =
-            AppDataSource.getRepository(Origin);
-
-        const categories =
-            await categoryRepo.find();
-
-        const origins =
-            await originRepo.find();
-
-        res.render(
-            "admin-categories-and-origins",
-            {
+            const [
+                recipes,
                 categories,
                 origins
-            }
-        );
+            ] = await Promise.all([
 
-    } catch (error) {
-        console.error(
-            "Error loading categories and origins:",
-            error
-        );
+                Recipe
+                    .find()
+                    .populate("category")
+                    .populate("origin")
+                    .sort({
+                        _id: sortDirection
+                    })
+                    .limit(100),
 
-        res.status(500).send(
-            "Error loading categories and origins"
-        );
-    }
-});
+                Category
+                    .find()
+                    .sort({
+                        name: 1
+                    }),
 
-// ==========================================
-// 6. RECIPES CRUD
-// ==========================================
+                Origin
+                    .find()
+                    .sort({
+                        name: 1
+                    })
+            ]);
 
-router.post("/recipes/add", async (req: Request, res: Response) => {
-    try {
-        const {
-            name,
-            categoryId,
-            originId,
-            imageUrl,
-            instructions
-        } = req.body;
+            return res.render(
+                "admin-recipes",
+                {
+                    recipes,
+                    categories,
+                    origins,
+                    currentSort:
+                        sort === "asc"
+                            ? "asc"
+                            : "desc"
+                }
+            );
 
-        const recipeRepo =
-            AppDataSource.getRepository(Recipe);
+        } catch (error) {
 
-        const newRecipe = new Recipe();
+            console.error(
+                "Error loading recipes:",
+                error
+            );
 
-        newRecipe.name = name;
-
-        // Custom recipes created from the Admin Dashboard
-        newRecipe.mealId = `custom_${Date.now()}`;
-
-        newRecipe.imageUrl = imageUrl || null;
-        newRecipe.instructions = instructions || null;
-
-        if (categoryId) {
-            const category = new Category();
-            category.id = parseInt(categoryId, 10);
-
-            newRecipe.category = category;
-            newRecipe.categoryId = category.id;
-        } else {
-            newRecipe.category = null;
-            newRecipe.categoryId = null;
+            return res
+                .status(500)
+                .send(
+                    "Error loading recipes"
+                );
         }
-
-        if (originId) {
-            const origin = new Origin();
-            origin.id = parseInt(originId, 10);
-
-            newRecipe.origin = origin;
-            newRecipe.originId = origin.id;
-        } else {
-            newRecipe.origin = null;
-            newRecipe.originId = null;
-        }
-
-        await recipeRepo.save(newRecipe);
-
-        res.redirect("/admin/recipes");
-
-    } catch (error) {
-        console.error("Error adding recipe:", error);
-        res.status(500).send("Error adding recipe");
     }
-});
+);
+
+/* ==========================================
+   5. CATEGORIES & ORIGINS PAGE
+========================================== */
+
+router.get(
+    "/categories",
+    async (
+        _req: Request,
+        res: Response
+    ) => {
+
+        try {
+
+            const [
+                categories,
+                origins
+            ] = await Promise.all([
+
+                Category
+                    .find()
+                    .sort({
+                        name: 1
+                    }),
+
+                Origin
+                    .find()
+                    .sort({
+                        name: 1
+                    })
+            ]);
+
+            return res.render(
+                "admin-categories-and-origins",
+                {
+                    categories,
+                    origins
+                }
+            );
+
+        } catch (error) {
+
+            console.error(
+                "Error loading categories and origins:",
+                error
+            );
+
+            return res
+                .status(500)
+                .send(
+                    "Error loading categories and origins"
+                );
+        }
+    }
+);
+
+/* ==========================================
+   6. RECIPES CRUD
+========================================== */
+
+/* =========================
+   ADD RECIPE
+========================= */
 
 router.post(
-    "/recipes/edit/:id",
-    async (req: Request, res: Response) => {
+    "/recipes/add",
+    async (
+        req: Request,
+        res: Response
+    ) => {
+
         try {
-            const { id } = req.params;
 
             const {
                 name,
@@ -372,195 +536,1108 @@ router.post(
                 instructions
             } = req.body;
 
-            const recipeRepo =
-                AppDataSource.getRepository(Recipe);
+            if (!name) {
 
-            const recipe =
-                await recipeRepo.findOneBy({
-                    id: Number(id)
-                });
-
-            if (!recipe) {
                 return res
-                    .status(404)
-                    .send("Recipe not found");
+                    .status(400)
+                    .send(
+                        "Recipe name is required"
+                    );
             }
 
-            recipe.name = name;
-            recipe.imageUrl = imageUrl || null;
-            recipe.instructions = instructions || null;
+            const recipeData: any = {
+
+                name:
+                    String(name).trim(),
+
+                mealId:
+                    `custom_${Date.now()}`,
+
+                imageUrl:
+                    imageUrl || null,
+
+                instructions:
+                    instructions || null,
+
+                youtubeUrl:
+                    null,
+
+                sourceUrl:
+                    null,
+
+                category:
+                    null,
+
+                origin:
+                    null
+            };
 
             if (categoryId) {
-                const category = new Category();
-                category.id = parseInt(categoryId, 10);
 
-                recipe.category = category;
-                recipe.categoryId = category.id;
-            } else {
-                recipe.category = null;
-                recipe.categoryId = null;
+                const category =
+                    await Category.findById(
+                        categoryId
+                    );
+
+                if (!category) {
+
+                    return res
+                        .status(400)
+                        .send(
+                            "Category not found"
+                        );
+                }
+
+                recipeData.category =
+                    category._id;
             }
 
             if (originId) {
-                const origin = new Origin();
-                origin.id = parseInt(originId, 10);
 
-                recipe.origin = origin;
-                recipe.originId = origin.id;
-            } else {
-                recipe.origin = null;
-                recipe.originId = null;
+                const origin =
+                    await Origin.findById(
+                        originId
+                    );
+
+                if (!origin) {
+
+                    return res
+                        .status(400)
+                        .send(
+                            "Origin not found"
+                        );
+                }
+
+                recipeData.origin =
+                    origin._id;
             }
 
-            await recipeRepo.save(recipe);
+            await Recipe.create(
+                recipeData
+            );
 
-            res.redirect("/admin/recipes");
+            return res.redirect(
+                "/admin/recipes"
+            );
 
         } catch (error) {
-            console.error("Error editing recipe:", error);
-            res.status(500).send("Error editing recipe");
+
+            console.error(
+                "Error adding recipe:",
+                error
+            );
+
+            return res
+                .status(500)
+                .send(
+                    "Error adding recipe"
+                );
         }
     }
 );
+
+/* =========================
+   EDIT RECIPE
+========================= */
+
+router.post(
+    "/recipes/edit/:id",
+    async (
+        req: Request,
+        res: Response
+    ) => {
+
+        try {
+
+            const {
+                id
+            } = req.params;
+
+            const {
+                name,
+                categoryId,
+                originId,
+                imageUrl,
+                instructions
+            } = req.body;
+
+            const recipe =
+                await Recipe.findById(
+                    id
+                );
+
+            if (!recipe) {
+
+                return res
+                    .status(404)
+                    .send(
+                        "Recipe not found"
+                    );
+            }
+
+            recipe.name =
+                String(name).trim();
+
+            recipe.imageUrl =
+                imageUrl || null;
+
+            recipe.instructions =
+                instructions || null;
+
+            /* CATEGORY */
+
+            if (categoryId) {
+
+                const category =
+                    await Category.findById(
+                        categoryId
+                    );
+
+                if (!category) {
+
+                    return res
+                        .status(400)
+                        .send(
+                            "Category not found"
+                        );
+                }
+
+                recipe.category =
+                    category._id;
+
+            } else {
+
+                recipe.category =
+                    null;
+            }
+
+            /* ORIGIN */
+
+            if (originId) {
+
+                const origin =
+                    await Origin.findById(
+                        originId
+                    );
+
+                if (!origin) {
+
+                    return res
+                        .status(400)
+                        .send(
+                            "Origin not found"
+                        );
+                }
+
+                recipe.origin =
+                    origin._id;
+
+            } else {
+
+                recipe.origin =
+                    null;
+            }
+
+            await recipe.save();
+
+            return res.redirect(
+                "/admin/recipes"
+            );
+
+        } catch (error) {
+
+            console.error(
+                "Error editing recipe:",
+                error
+            );
+
+            return res
+                .status(500)
+                .send(
+                    "Error editing recipe"
+                );
+        }
+    }
+);
+
+/* =========================
+   DELETE RECIPE
+========================= */
 
 router.post(
     "/recipes/delete/:id",
-    async (req: Request, res: Response) => {
+    async (
+        req: Request,
+        res: Response
+    ) => {
+
         try {
-            const { id } = req.params;
 
-            const recipeRepo =
-                AppDataSource.getRepository(Recipe);
+            const {
+                id
+            } = req.params;
 
-            await recipeRepo.delete(Number(id));
+            const recipe =
+                await Recipe.findByIdAndDelete(
+                    id
+                );
 
-            res.redirect("/admin/recipes");
+            if (!recipe) {
+
+                return res
+                    .status(404)
+                    .send(
+                        "Recipe not found"
+                    );
+            }
+
+            return res.redirect(
+                "/admin/recipes"
+            );
 
         } catch (error) {
-            console.error("Error deleting recipe:", error);
-            res.status(500).send("Error deleting recipe");
+
+            console.error(
+                "Error deleting recipe:",
+                error
+            );
+
+            return res
+                .status(500)
+                .send(
+                    "Error deleting recipe"
+                );
         }
     }
 );
 
-// ==========================================
-// 7. CATEGORIES CRUD
-// ==========================================
+/* ==========================================
+   7. CATEGORIES CRUD
+========================================== */
+
+/* =========================
+   ADD CATEGORY
+========================= */
 
 router.post(
     "/categories/add",
-    async (req: Request, res: Response) => {
+    async (
+        req: Request,
+        res: Response
+    ) => {
+
         try {
+
             const {
                 name,
                 description,
                 imageUrl
             } = req.body;
 
-            const categoryRepo =
-                AppDataSource.getRepository(Category);
+            if (!name) {
 
-            const category = categoryRepo.create({
-                name,
-                description: description || null,
-                imageUrl: imageUrl || null
+                return res
+                    .status(400)
+                    .send(
+                        "Category name is required"
+                    );
+            }
+
+            await Category.create({
+                name:
+                    String(name).trim(),
+
+                description:
+                    description || null,
+
+                imageUrl:
+                    imageUrl || null
             });
 
-            await categoryRepo.save(category);
-
-            res.redirect("/admin/categories");
+            return res.redirect(
+                "/admin/categories"
+            );
 
         } catch (error) {
-            console.error("Error adding category:", error);
-            res.status(500).send("Error adding category");
+
+            console.error(
+                "Error adding category:",
+                error
+            );
+
+            return res
+                .status(500)
+                .send(
+                    "Error adding category"
+                );
         }
     }
 );
 
+/* =========================
+   DELETE CATEGORY
+========================= */
+
 router.post(
     "/categories/delete/:id",
-    async (req: Request, res: Response) => {
+    async (
+        req: Request,
+        res: Response
+    ) => {
+
         try {
-            const { id } = req.params;
 
-            const categoryRepo =
-                AppDataSource.getRepository(Category);
+            const {
+                id
+            } = req.params;
 
-            await categoryRepo.delete(Number(id));
+            const category =
+                await Category.findByIdAndDelete(
+                    id
+                );
 
-            res.redirect("/admin/categories");
+            if (!category) {
+
+                return res
+                    .status(404)
+                    .send(
+                        "Category not found"
+                    );
+            }
+
+            /*
+             * Recipes that used this category
+             * will no longer reference it.
+             */
+
+            await Recipe.updateMany(
+                {
+                    category:
+                        category._id
+                },
+                {
+                    $set: {
+                        category: null
+                    }
+                }
+            );
+
+            return res.redirect(
+                "/admin/categories"
+            );
 
         } catch (error) {
+
             console.error(
                 "Error deleting category:",
                 error
             );
 
-            res.status(500).send(
-                "Error deleting category"
-            );
+            return res
+                .status(500)
+                .send(
+                    "Error deleting category"
+                );
         }
     }
 );
 
-// ==========================================
-// 8. ORIGINS CRUD
-// ==========================================
+/* ==========================================
+   8. ORIGINS CRUD
+========================================== */
+
+/* =========================
+   ADD ORIGIN
+========================= */
 
 router.post(
     "/origins/add",
-    async (req: Request, res: Response) => {
+    async (
+        req: Request,
+        res: Response
+    ) => {
+
         try {
+
             const {
                 name,
                 country,
                 flagUrl
             } = req.body;
 
-            const originRepo =
-                AppDataSource.getRepository(Origin);
+            if (!name) {
 
-            const origin = originRepo.create({
-                name,
-                country: country || null,
-                flagUrl: flagUrl || null
+                return res
+                    .status(400)
+                    .send(
+                        "Origin name is required"
+                    );
+            }
+
+            await Origin.create({
+                name:
+                    String(name).trim(),
+
+                country:
+                    country || null,
+
+                flagUrl:
+                    flagUrl || null
             });
 
-            await originRepo.save(origin);
-
-            res.redirect("/admin/categories");
+            return res.redirect(
+                "/admin/categories"
+            );
 
         } catch (error) {
-            console.error("Error adding origin:", error);
-            res.status(500).send("Error adding origin");
+
+            console.error(
+                "Error adding origin:",
+                error
+            );
+
+            return res
+                .status(500)
+                .send(
+                    "Error adding origin"
+                );
         }
     }
 );
 
+/* =========================
+   DELETE ORIGIN
+========================= */
+
 router.post(
     "/origins/delete/:id",
-    async (req: Request, res: Response) => {
+    async (
+        req: Request,
+        res: Response
+    ) => {
+
         try {
-            const { id } = req.params;
 
-            const originRepo =
-                AppDataSource.getRepository(Origin);
+            const {
+                id
+            } = req.params;
 
-            await originRepo.delete(Number(id));
+            const origin =
+                await Origin.findByIdAndDelete(
+                    id
+                );
 
-            res.redirect("/admin/categories");
+            if (!origin) {
+
+                return res
+                    .status(404)
+                    .send(
+                        "Origin not found"
+                    );
+            }
+
+            /*
+             * Recipes that used this origin
+             * will no longer reference it.
+             */
+
+            await Recipe.updateMany(
+                {
+                    origin:
+                        origin._id
+                },
+                {
+                    $set: {
+                        origin: null
+                    }
+                }
+            );
+
+            return res.redirect(
+                "/admin/categories"
+            );
 
         } catch (error) {
+
             console.error(
                 "Error deleting origin:",
                 error
             );
 
-            res.status(500).send(
-                "Error deleting origin"
-            );
+            return res
+                .status(500)
+                .send(
+                    "Error deleting origin"
+                );
         }
     }
 );
 
 export default router;
+
+// import { Router, Request, Response, NextFunction } from "express";
+// import { AppDataSource } from "../data-source.js";
+// import { Recipe } from "../entities/Recipe.js";
+// import { Category } from "../entities/Category.js";
+// import { Origin } from "../entities/Origin.js";
+// import { User } from "../entities/User.js";
+// import jwt from "jsonwebtoken";
+// import bcrypt from "bcrypt";
+
+// const router = Router();
+
+// const JWT_SECRET =
+//     process.env.JWT_SECRET || "your_super_secret_jwt_key";
+
+// // ==========================================
+// // 1. PUBLIC AUTH ROUTES
+// // ==========================================
+
+// router.get("/login", (req: Request, res: Response) => {
+//     if (req.cookies && req.cookies.adminToken) {
+//         try {
+//             const decoded = jwt.verify(
+//                 req.cookies.adminToken,
+//                 JWT_SECRET
+//             ) as { role?: string };
+
+//             if (decoded.role === "admin") {
+//                 return res.redirect("/admin/dashboard");
+//             }
+//         } catch (error) {
+//             // Invalid or expired token
+//         }
+//     }
+
+//     res.render("admin-login", {
+//         layout: false,
+//         error: null
+//     });
+// });
+
+// router.post("/login", async (req: Request, res: Response) => {
+//     try {
+//         const { email, password } = req.body;
+
+//         if (!email || !password) {
+//             return res.render("admin-login", {
+//                 layout: false,
+//                 error: "Email and password are required."
+//             });
+//         }
+
+//         const userRepo = AppDataSource.getRepository(User);
+
+//         const user = await userRepo.findOneBy({ email });
+
+//         if (!user) {
+//             return res.render("admin-login", {
+//                 layout: false,
+//                 error: "Invalid email or password."
+//             });
+//         }
+
+//         const isMatch = await bcrypt.compare(
+//             password,
+//             user.passwordHash
+//         );
+
+//         if (!isMatch) {
+//             return res.render("admin-login", {
+//                 layout: false,
+//                 error: "Invalid email or password."
+//             });
+//         }
+
+//         // Admin access is required
+//         if (user.role !== "admin") {
+//             return res.render("admin-login", {
+//                 layout: false,
+//                 error: "Admin access required."
+//             });
+//         }
+
+//         const token = jwt.sign(
+//             {
+//                 id: user.id,
+//                 email: user.email,
+//                 role: user.role
+//             },
+//             JWT_SECRET,
+//             {
+//                 expiresIn: "1d"
+//             }
+//         );
+
+//         res.cookie("adminToken", token, {
+//             httpOnly: true,
+//             sameSite: "lax",
+//             maxAge: 24 * 60 * 60 * 1000
+//         });
+
+//         res.redirect("/admin/dashboard");
+
+//     } catch (error) {
+//         console.error("Login Error:", error);
+
+//         res.render("admin-login", {
+//             layout: false,
+//             error: "An unexpected error occurred."
+//         });
+//     }
+// });
+
+// router.get("/logout", (req: Request, res: Response) => {
+//     res.clearCookie("adminToken");
+//     res.redirect("/admin/login");
+// });
+
+// // ==========================================
+// // 2. JWT AUTHENTICATION MIDDLEWARE
+// // ==========================================
+
+// const authenticateJWT = (
+//     req: Request,
+//     res: Response,
+//     next: NextFunction
+// ) => {
+//     const token =
+//         req.cookies?.adminToken ||
+//         req.headers.authorization?.split(" ")[1];
+
+//     if (!token) {
+//         return res.redirect("/admin/login");
+//     }
+
+//     try {
+//         const decoded = jwt.verify(
+//             token,
+//             JWT_SECRET
+//         ) as { id: number; email: string; role: string };
+
+//         if (decoded.role !== "admin") {
+//             res.clearCookie("adminToken");
+//             return res.redirect("/admin/login");
+//         }
+
+//         (req as any).user = decoded;
+
+//         next();
+
+//     } catch (error) {
+//         res.clearCookie("adminToken");
+//         return res.redirect("/admin/login");
+//     }
+// };
+
+// router.use(authenticateJWT);
+
+// // ==========================================
+// // 3. DASHBOARD
+// // ==========================================
+
+// router.get("/dashboard", async (req: Request, res: Response) => {
+//     try {
+//         const recipeRepo = AppDataSource.getRepository(Recipe);
+//         const userRepo = AppDataSource.getRepository(User);
+//         const categoryRepo = AppDataSource.getRepository(Category);
+
+//         const [
+//             totalRecipes,
+//             totalUsers,
+//             totalCategories,
+//             recentRecipes
+//         ] = await Promise.all([
+//             recipeRepo.count(),
+//             userRepo.count(),
+//             categoryRepo.count(),
+
+//             recipeRepo.find({
+//                 take: 5,
+//                 order: {
+//                     id: "DESC"
+//                 },
+//                 relations: {
+//                     category: true
+//                 }
+//             })
+//         ]);
+
+//         res.render("admin-dashboard", {
+//             stats: {
+//                 totalRecipes,
+//                 totalUsers,
+//                 totalCategories
+//             },
+//             recentRecipes
+//         });
+
+//     } catch (error) {
+//         console.error("Dashboard error:", error);
+
+//         res.render("admin-dashboard", {
+//             stats: {
+//                 totalRecipes: 0,
+//                 totalUsers: 0,
+//                 totalCategories: 0
+//             },
+//             recentRecipes: []
+//         });
+//     }
+// });
+
+// // ==========================================
+// // 4. RECIPES PAGE
+// // ==========================================
+
+// router.get("/recipes", async (req: Request, res: Response) => {
+//     try {
+//         const { sort } = req.query;
+
+//         const orderDirection =
+//             sort === "asc" ? "ASC" : "DESC";
+
+//         const recipes = await AppDataSource
+//             .getRepository(Recipe)
+//             .createQueryBuilder("recipe")
+//             .leftJoinAndSelect(
+//                 "recipe.category",
+//                 "category"
+//             )
+//             .leftJoinAndSelect(
+//                 "recipe.origin",
+//                 "origin"
+//             )
+//             .orderBy(
+//                 "recipe.id",
+//                 orderDirection
+//             )
+//             .take(100)
+//             .getMany();
+
+//         const categories =
+//             await AppDataSource
+//                 .getRepository(Category)
+//                 .find();
+
+//         const origins =
+//             await AppDataSource
+//                 .getRepository(Origin)
+//                 .find();
+
+//         res.render("admin-recipes", {
+//             recipes,
+//             categories,
+//             origins,
+//             currentSort: sort || "desc"
+//         });
+
+//     } catch (error) {
+//         console.error("Error loading recipes:", error);
+//         res.status(500).send("Error loading recipes");
+//     }
+// });
+
+// // ==========================================
+// // 5. CATEGORIES & ORIGINS PAGE
+// // ==========================================
+
+// router.get("/categories", async (req: Request, res: Response) => {
+//     try {
+//         const categoryRepo =
+//             AppDataSource.getRepository(Category);
+
+//         const originRepo =
+//             AppDataSource.getRepository(Origin);
+
+//         const categories =
+//             await categoryRepo.find();
+
+//         const origins =
+//             await originRepo.find();
+
+//         res.render(
+//             "admin-categories-and-origins",
+//             {
+//                 categories,
+//                 origins
+//             }
+//         );
+
+//     } catch (error) {
+//         console.error(
+//             "Error loading categories and origins:",
+//             error
+//         );
+
+//         res.status(500).send(
+//             "Error loading categories and origins"
+//         );
+//     }
+// });
+
+// // ==========================================
+// // 6. RECIPES CRUD
+// // ==========================================
+
+// router.post("/recipes/add", async (req: Request, res: Response) => {
+//     try {
+//         const {
+//             name,
+//             categoryId,
+//             originId,
+//             imageUrl,
+//             instructions
+//         } = req.body;
+
+//         const recipeRepo =
+//             AppDataSource.getRepository(Recipe);
+
+//         const newRecipe = new Recipe();
+
+//         newRecipe.name = name;
+
+//         // Custom recipes created from the Admin Dashboard
+//         newRecipe.mealId = `custom_${Date.now()}`;
+
+//         newRecipe.imageUrl = imageUrl || null;
+//         newRecipe.instructions = instructions || null;
+
+//         if (categoryId) {
+//             const category = new Category();
+//             category.id = parseInt(categoryId, 10);
+
+//             newRecipe.category = category;
+//             newRecipe.categoryId = category.id;
+//         } else {
+//             newRecipe.category = null;
+//             newRecipe.categoryId = null;
+//         }
+
+//         if (originId) {
+//             const origin = new Origin();
+//             origin.id = parseInt(originId, 10);
+
+//             newRecipe.origin = origin;
+//             newRecipe.originId = origin.id;
+//         } else {
+//             newRecipe.origin = null;
+//             newRecipe.originId = null;
+//         }
+
+//         await recipeRepo.save(newRecipe);
+
+//         res.redirect("/admin/recipes");
+
+//     } catch (error) {
+//         console.error("Error adding recipe:", error);
+//         res.status(500).send("Error adding recipe");
+//     }
+// });
+
+// router.post(
+//     "/recipes/edit/:id",
+//     async (req: Request, res: Response) => {
+//         try {
+//             const { id } = req.params;
+
+//             const {
+//                 name,
+//                 categoryId,
+//                 originId,
+//                 imageUrl,
+//                 instructions
+//             } = req.body;
+
+//             const recipeRepo =
+//                 AppDataSource.getRepository(Recipe);
+
+//             const recipe =
+//                 await recipeRepo.findOneBy({
+//                     id: Number(id)
+//                 });
+
+//             if (!recipe) {
+//                 return res
+//                     .status(404)
+//                     .send("Recipe not found");
+//             }
+
+//             recipe.name = name;
+//             recipe.imageUrl = imageUrl || null;
+//             recipe.instructions = instructions || null;
+
+//             if (categoryId) {
+//                 const category = new Category();
+//                 category.id = parseInt(categoryId, 10);
+
+//                 recipe.category = category;
+//                 recipe.categoryId = category.id;
+//             } else {
+//                 recipe.category = null;
+//                 recipe.categoryId = null;
+//             }
+
+//             if (originId) {
+//                 const origin = new Origin();
+//                 origin.id = parseInt(originId, 10);
+
+//                 recipe.origin = origin;
+//                 recipe.originId = origin.id;
+//             } else {
+//                 recipe.origin = null;
+//                 recipe.originId = null;
+//             }
+
+//             await recipeRepo.save(recipe);
+
+//             res.redirect("/admin/recipes");
+
+//         } catch (error) {
+//             console.error("Error editing recipe:", error);
+//             res.status(500).send("Error editing recipe");
+//         }
+//     }
+// );
+
+// router.post(
+//     "/recipes/delete/:id",
+//     async (req: Request, res: Response) => {
+//         try {
+//             const { id } = req.params;
+
+//             const recipeRepo =
+//                 AppDataSource.getRepository(Recipe);
+
+//             await recipeRepo.delete(Number(id));
+
+//             res.redirect("/admin/recipes");
+
+//         } catch (error) {
+//             console.error("Error deleting recipe:", error);
+//             res.status(500).send("Error deleting recipe");
+//         }
+//     }
+// );
+
+// // ==========================================
+// // 7. CATEGORIES CRUD
+// // ==========================================
+
+// router.post(
+//     "/categories/add",
+//     async (req: Request, res: Response) => {
+//         try {
+//             const {
+//                 name,
+//                 description,
+//                 imageUrl
+//             } = req.body;
+
+//             const categoryRepo =
+//                 AppDataSource.getRepository(Category);
+
+//             const category = categoryRepo.create({
+//                 name,
+//                 description: description || null,
+//                 imageUrl: imageUrl || null
+//             });
+
+//             await categoryRepo.save(category);
+
+//             res.redirect("/admin/categories");
+
+//         } catch (error) {
+//             console.error("Error adding category:", error);
+//             res.status(500).send("Error adding category");
+//         }
+//     }
+// );
+
+// router.post(
+//     "/categories/delete/:id",
+//     async (req: Request, res: Response) => {
+//         try {
+//             const { id } = req.params;
+
+//             const categoryRepo =
+//                 AppDataSource.getRepository(Category);
+
+//             await categoryRepo.delete(Number(id));
+
+//             res.redirect("/admin/categories");
+
+//         } catch (error) {
+//             console.error(
+//                 "Error deleting category:",
+//                 error
+//             );
+
+//             res.status(500).send(
+//                 "Error deleting category"
+//             );
+//         }
+//     }
+// );
+
+// // ==========================================
+// // 8. ORIGINS CRUD
+// // ==========================================
+
+// router.post(
+//     "/origins/add",
+//     async (req: Request, res: Response) => {
+//         try {
+//             const {
+//                 name,
+//                 country,
+//                 flagUrl
+//             } = req.body;
+
+//             const originRepo =
+//                 AppDataSource.getRepository(Origin);
+
+//             const origin = originRepo.create({
+//                 name,
+//                 country: country || null,
+//                 flagUrl: flagUrl || null
+//             });
+
+//             await originRepo.save(origin);
+
+//             res.redirect("/admin/categories");
+
+//         } catch (error) {
+//             console.error("Error adding origin:", error);
+//             res.status(500).send("Error adding origin");
+//         }
+//     }
+// );
+
+// router.post(
+//     "/origins/delete/:id",
+//     async (req: Request, res: Response) => {
+//         try {
+//             const { id } = req.params;
+
+//             const originRepo =
+//                 AppDataSource.getRepository(Origin);
+
+//             await originRepo.delete(Number(id));
+
+//             res.redirect("/admin/categories");
+
+//         } catch (error) {
+//             console.error(
+//                 "Error deleting origin:",
+//                 error
+//             );
+
+//             res.status(500).send(
+//                 "Error deleting origin"
+//             );
+//         }
+//     }
+// );
+
+// export default router;
