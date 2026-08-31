@@ -1,4 +1,11 @@
-import {Entity,PrimaryGeneratedColumn,Column} from "typeorm";
+import {
+    Entity,
+    PrimaryGeneratedColumn,
+    Column,
+    OneToMany
+} from "typeorm";
+
+import { Recipe } from "./Recipe.js";
 
 @Entity("origins")
 export class Origin {
@@ -27,4 +34,10 @@ export class Origin {
         nullable: true
     })
     flagUrl!: string | null;
+
+    @OneToMany(
+        () => Recipe,
+        (recipe) => recipe.origin
+    )
+    recipes!: Recipe[];
 }

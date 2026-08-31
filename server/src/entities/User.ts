@@ -1,6 +1,18 @@
-import {Entity, PrimaryGeneratedColumn, Column, CreateDateColumn} from "typeorm";
+import {
+    Entity,
+    PrimaryGeneratedColumn,
+    Column,
+    CreateDateColumn,
+    OneToMany
+} from "typeorm";
+
+import { Favorite } from "./Favorite.js";
+import { MealPlanItem } from "./MealPlanItem.js";
+import { GroceryItem } from "./GroceryItem.js";
+
 @Entity("users")
 export class User {
+
     @PrimaryGeneratedColumn()
     id!: number;
 
@@ -37,4 +49,22 @@ export class User {
         type: "timestamp"
     })
     createdAt!: Date;
+
+    @OneToMany(
+        () => Favorite,
+        (favorite) => favorite.user
+    )
+    favorites!: Favorite[];
+
+    @OneToMany(
+        () => MealPlanItem,
+        (item) => item.user
+    )
+    mealPlanItems!: MealPlanItem[];
+
+    @OneToMany(
+        () => GroceryItem,
+        (item) => item.user
+    )
+    groceryItems!: GroceryItem[];
 }

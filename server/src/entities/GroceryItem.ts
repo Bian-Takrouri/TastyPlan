@@ -1,12 +1,23 @@
-import { Entity, PrimaryGeneratedColumn, Column,ManyToOne, JoinColumn } from "typeorm";
+import {
+    Entity,
+    PrimaryGeneratedColumn,
+    Column,
+    ManyToOne,
+    JoinColumn,
+    Index,
+    Unique
+} from "typeorm";
+
 import { User } from "./User.js";
 
 @Entity("grocery_items")
+@Unique(["userId", "name"])
 export class GroceryItem {
 
     @PrimaryGeneratedColumn()
     id!: number;
 
+    @Index("idx_grocery_user")
     @Column({
         name: "user_id",
         type: "int"
@@ -20,6 +31,12 @@ export class GroceryItem {
     name!: string;
 
     @Column({
+        type: "int",
+        default: 1
+    })
+    quantity!: number;
+
+    @Column({
         type: "boolean",
         default: false
     })
@@ -31,9 +48,15 @@ export class GroceryItem {
     })
     custom!: boolean;
 
-    @ManyToOne(() => User, {
-        onDelete: "CASCADE"
+    @ManyToOne(
+        () => User,
+        (user) => user.groceryItems,
+        {
+            onDelete: "CASCADE"
+        }
+    )
+    @JoinColumn({
+        name: "user_id"
     })
-    @JoinColumn({ name: "user_id" })
     user!: User;
 }

@@ -1,4 +1,11 @@
-import {Entity,PrimaryGeneratedColumn,Column} from "typeorm";
+import {
+    Entity,
+    PrimaryGeneratedColumn,
+    Column,
+    OneToMany
+} from "typeorm";
+
+import { Recipe } from "./Recipe.js";
 
 @Entity("categories")
 export class Category {
@@ -6,10 +13,17 @@ export class Category {
     @PrimaryGeneratedColumn()
     id!: number;
 
-    @Column({type: "varchar", length: 100, unique: true })
+    @Column({
+        type: "varchar",
+        length: 100,
+        unique: true
+    })
     name!: string;
 
-    @Column({ type: "text", nullable: true })
+    @Column({
+        type: "text",
+        nullable: true
+    })
     description!: string | null;
 
     @Column({
@@ -19,4 +33,10 @@ export class Category {
         nullable: true
     })
     imageUrl!: string | null;
+
+    @OneToMany(
+        () => Recipe,
+        (recipe) => recipe.category
+    )
+    recipes!: Recipe[];
 }

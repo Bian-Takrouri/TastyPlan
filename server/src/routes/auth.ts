@@ -20,7 +20,8 @@ router.post("/login", async (req, res) => {
             });
         }
 
-        const userRepository = AppDataSource.getRepository(User);
+        const userRepository =
+            AppDataSource.getRepository(User);
 
         const user = await userRepository.findOne({
             where: { email }
@@ -70,7 +71,7 @@ router.post("/login", async (req, res) => {
         });
 
     } catch (error) {
-        console.error(error);
+        console.error("Login error:", error);
 
         return res.status(500).json({
             success: false,
