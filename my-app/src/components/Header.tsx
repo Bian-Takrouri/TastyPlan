@@ -22,7 +22,6 @@ function Header({ value, searchForValue }: Props) {
     function handleLogout() {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
-
         setIsLoggedIn(false);
         navigate("/login");
     }
@@ -33,81 +32,28 @@ function Header({ value, searchForValue }: Props) {
 
     return (
         <div className="HeaderContainer">
-            <div
-                className="logo"
-                onClick={() => navigate("/")}
-                style={{ cursor: "pointer" }}
-            >
-                <img
-                    className="logoImg"
-                    src="/logo.png"
-                    alt="Logo"
-                />
+            <div className="logo" onClick={() => navigate("/")} style={{ cursor: "pointer" }}>
+                <img className="logoImg" src="/logo.png" alt="Logo" />
             </div>
 
-            <SearchBar
-                value={value}
-                searchForValue={searchForValue}
-            />
+            <SearchBar value={value} searchForValue={searchForValue} />
 
             <div className="mood">
-
-                <button
-                    className="favoriteButton"
-                    onClick={() => navigate("/")}
-                >
-                    🏠 Home
-                </button>
-
-                <button
-                    className="favoriteButton"
-                    onClick={() => navigate("/favorites")}
-                >
-                    ❤️ Favorite Meals
-                </button>
-
-                <button
-                    className="favoriteButton"
-                    onClick={() => navigate("/mealPlannerPage")}
-                >
-                    🗓️ Meal Planner
-                </button>
-
-                <button
-                    className="favoriteButton"
-                    onClick={() => navigate("/grocery")}
-                >
-                    🛒 Grocery List
-                </button>
+                <button className="favoriteButton" onClick={() => navigate("/")}>🏠 Home</button>
+                <button className="favoriteButton" onClick={() => navigate("/favorites")}>❤️ Favorite Meals</button>
+                <button className="favoriteButton" onClick={() => navigate("/mealPlannerPage")}>🗓️ Meal Planner</button>
+                <button className="favoriteButton" onClick={() => navigate("/grocery")}>🛒 Grocery List</button>
 
                 {isLoggedIn ? (
-                    <button
-                        className="favoriteButton"
-                        onClick={handleLogout}
-                    >
-                        🚪 Logout
-                    </button>
+                    <button className="favoriteButton" onClick={handleLogout}>🚪 Logout</button>
                 ) : (
-                    <button
-                        className="favoriteButton"
-                        onClick={handleLogin}
-                    >
-                        🔐 Login
-                    </button>
+                    <button className="favoriteButton" onClick={handleLogin}>🔐 Login</button>
                 )}
 
                 {theme === "dark" ? (
-                    <img
-                        src={sun}
-                        alt="light mode"
-                        onClick={toggleTheme}
-                    />
+                    <img src={sun} alt="light mode" onClick={toggleTheme} />
                 ) : (
-                    <img
-                        src={moon}
-                        alt="dark mode"
-                        onClick={toggleTheme}
-                    />
+                    <img src={moon} alt="dark mode" onClick={toggleTheme} />
                 )}
             </div>
         </div>

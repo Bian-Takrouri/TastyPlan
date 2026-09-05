@@ -1,33 +1,40 @@
-<h2 class="h3 font-weight-bold text-gray-800 mb-4">System Overview</h2>
+<div class="page-header">
+    <div>
+        <h2 class="page-title">Dashboard</h2>
+        <p class="text-muted mb-0">Welcome to TastyPlan Admin Dashboard</p>
+    </div>
+</div>
 
-<div class="row">
-    <!-- Total Recipes -->
-    <div class="col-md-4 mb-4">
-        <div class="card bg-primary text-white shadow py-2">
-            <div class="card-body">
-                <div class="text-xs font-weight-bold text-uppercase mb-1">Total Recipes</div>
-                <div class="h2 mb-0 font-weight-bold">{{stats.totalRecipes}}</div>
-            </div>
+<div class="row g-4 mb-4">
+    <div class="col-md-6 col-xl-3">
+        <div class="stat-card bg-primary">
+            <div class="stat-title">Total Recipes</div>
+            <div class="stat-number">{{stats.totalRecipes}}</div>
+            <i class="fa-solid fa-bowl-food mt-2"></i>
         </div>
     </div>
 
-    <!-- Total Users -->
-    <div class="col-md-4 mb-4">
-        <div class="card bg-success text-white shadow py-2">
-            <div class="card-body">
-                <div class="text-xs font-weight-bold text-uppercase mb-1">Total Users</div>
-                <div class="h2 mb-0 font-weight-bold">{{stats.totalUsers}}</div>
-            </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="stat-card bg-success">
+            <div class="stat-title">Total Users</div>
+            <div class="stat-number">{{stats.totalUsers}}</div>
+            <i class="fa-solid fa-users mt-2"></i>
         </div>
     </div>
 
-    <!-- Total Categories -->
-    <div class="col-md-4 mb-4">
-        <div class="card bg-info text-white shadow py-2">
-            <div class="card-body">
-                <div class="text-xs font-weight-bold text-uppercase mb-1">Total Categories</div>
-                <div class="h2 mb-0 font-weight-bold">{{stats.totalCategories}}</div>
-            </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="stat-card bg-info">
+            <div class="stat-title">Total Categories</div>
+            <div class="stat-number">{{stats.totalCategories}}</div>
+            <i class="fa-solid fa-layer-group mt-2"></i>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-3">
+        <div class="stat-card bg-warning text-dark">
+            <div class="stat-title">Total Origins</div>
+            <div class="stat-number">{{stats.totalOrigins}}</div>
+            <i class="fa-solid fa-earth-americas mt-2"></i>
         </div>
     </div>
 </div>

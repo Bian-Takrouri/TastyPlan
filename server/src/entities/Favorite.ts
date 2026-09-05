@@ -1,12 +1,5 @@
-import {
-    Entity,
-    PrimaryGeneratedColumn,
-    CreateDateColumn,
-    ManyToOne,
-    JoinColumn,
-    Unique,
-    Index
-} from "typeorm";
+import { Entity, PrimaryGeneratedColumn, CreateDateColumn,ManyToOne,
+JoinColumn, Unique, Index} from "typeorm";
 
 import { User } from "./User.js";
 import { Recipe } from "./Recipe.js";
@@ -19,29 +12,17 @@ export class Favorite {
     id!: number;
 
     @Index("idx_favorite_user")
-    @ManyToOne(
-        () => User,
-        (user) => user.favorites,
-        {
-            onDelete: "CASCADE"
-        }
-    )
-    @JoinColumn({
-        name: "user_id"
-    })
+
+    @ManyToOne(() => User, (user) => user.favorites,{onDelete: "CASCADE"})
+    
+    @JoinColumn({ name: "user_id" })
     user!: User;
 
     @Index("idx_favorite_recipe")
-    @ManyToOne(
-        () => Recipe,
-        (recipe) => recipe.favorites,
-        {
-            onDelete: "CASCADE"
-        }
-    )
-    @JoinColumn({
-        name: "recipe_id"
-    })
+
+    @ManyToOne(()=>Recipe , (recipe)=>recipe.favorites , {onDelete : "CASCADE"})
+
+    @JoinColumn({  name: "recipe_id"})
     recipe!: Recipe;
 
     @CreateDateColumn({

@@ -5,10 +5,6 @@ import { Category } from "../entities/Category.js";
 
 export const seedCategories = async () => {
   const categoryRepo = AppDataSource.getRepository(Category);
-
-  console.log("⏳ Starting Categories Seeding...");
-
-  // قراءة الملف من مجلد server/data/ مباشرة
   const filePath = path.join(process.cwd(), "data", "categories.json");
   const fileData = await fs.readFile(filePath, "utf-8");
   const categoriesData = JSON.parse(fileData);
@@ -23,7 +19,11 @@ export const seedCategories = async () => {
       });
       await categoryRepo.save(category);
     }
+    else {
+      existing.description = item.strCategoryDescription;
+      existing.imageUrl = item.strCategoryThumb;
+      await categoryRepo.save(existing);
+    }
   }
-
-  console.log("✅ Categories Seeding Completed!");
+  console.log("categories seeding completed");
 };

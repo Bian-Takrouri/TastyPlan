@@ -1,23 +1,10 @@
-import {
-    useEffect,
-    useState,
-    type Dispatch
-} from "react";
-
+import { useEffect,useState,type Dispatch} from "react";
 import type { Recipe } from "../data/meals";
 import AllRecipeCard from "../components/AllRecipeCard";
 import SpecificRecipe from "../components/SpecificRecipe";
-
 import MealAPI from "../services/APImeal";
-
-import {
-    getFavorites
-} from "../services/APIuser";
-
-import type {
-    mealPlannerAction
-} from "../reducer/mealPlannerReducer";
-
+import {getFavorites} from "../services/APIuser";
+import type {mealPlannerAction} from "../reducer/mealPlannerReducer";
 import "./Favorites.css";
 
 type Props = {
@@ -63,9 +50,7 @@ function Favorites({ dispatch }: Props) {
 
     const handleRecipe = async (id: string) => {
         try {
-            const meal =
-                await mealAPI.getSpecificRecipe(id);
-
+            const meal =await mealAPI.getSpecificRecipe(id);
             setSpecificMeal(meal);
         } catch (error) {
             console.error(

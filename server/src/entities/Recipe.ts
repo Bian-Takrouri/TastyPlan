@@ -1,13 +1,4 @@
-import {
-    Entity,
-    PrimaryGeneratedColumn,
-    Column,
-    ManyToOne,
-    JoinColumn,
-    OneToMany,
-    Index
-} from "typeorm";
-
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn,OneToMany , Index} from "typeorm";
 import { Category } from "./Category.js";
 import { Origin } from "./Origin.js";
 import { RecipeIngredient } from "./RecipeIngredient.js";
@@ -20,111 +11,64 @@ export class Recipe {
     @PrimaryGeneratedColumn()
     id!: number;
 
-    @Column({
-        name: "meal_id",
-        type: "varchar",
-        length: 50,
-        unique: true
-    })
+    @Column({ name : "meal_id" , type : "varchar" , length : 50 , unique : true })
     mealId!: string;
 
     @Index("idx_recipe_name")
-    @Column({
-        type: "varchar",
-        length: 255
-    })
+
+    @Column({ type :"varchar" , length : 255 })
     name!: string;
 
     @Index("idx_recipe_category")
-    @Column({
-        name: "category_id",
-        type: "int",
-        nullable: true
-    })
+
+    @Column({ name : "category_id" , type:"int" , nullable :true }) 
     categoryId!: number | null;
 
     @Index("idx_recipe_origin")
-    @Column({
-        name: "origin_id",
-        type: "int",
-        nullable: true
-    })
+
+    @Column({ name : "origin_id" , type :"int" , nullable : true })
     originId!: number | null;
 
-    @Column({
-        type: "text",
-        nullable: true
-    })
+    @Column({ type :"text" , nullable : true })
     instructions!: string | null;
 
-    @Column({
-        name: "image_url",
-        type: "varchar",
-        length: 500,
-        nullable: true
-    })
+    @Column({ name: "image_url", type: "varchar", length: 500, nullable: true })
     imageUrl!: string | null;
 
-    @Column({
-        name: "youtube_url",
-        type: "varchar",
-        length: 500,
-        nullable: true
-    })
+    @Column({ name: "youtube_url", type: "varchar", length: 500, nullable: true })
     youtubeUrl!: string | null;
 
-    @Column({
-        name: "source_url",
-        type: "varchar",
-        length: 500,
-        nullable: true
-    })
+    @Column({ name: "source_url", type: "varchar", length: 500, nullable: true })
     sourceUrl!: string | null;
 
-    @ManyToOne(
-        () => Category,
-        (category) => category.recipes,
+    @ManyToOne( () => Category , (category) => category.recipes,
         {
             nullable: true,
             onDelete: "SET NULL"
         }
     )
+
     @JoinColumn({
         name: "category_id"
     })
     category!: Category | null;
 
-    @ManyToOne(
-        () => Origin,
-        (origin) => origin.recipes,
+    @ManyToOne( () => Origin,(origin) => origin.recipes,
         {
             nullable: true,
             onDelete: "SET NULL"
         }
     )
-    @JoinColumn({
-        name: "origin_id"
-    })
+
+    @JoinColumn({ name: "origin_id" })
     origin!: Origin | null;
 
-    @OneToMany(
-        () => RecipeIngredient,
-        (ingredient) => ingredient.recipe,
-        {
-            cascade: true
-        }
-    )
+    @OneToMany(() => RecipeIngredient , (ingredient) => ingredient.recipe , {cascade: true})
     ingredients!: RecipeIngredient[];
 
-    @OneToMany(
-        () => Favorite,
-        (favorite) => favorite.recipe
-    )
+    @OneToMany(()=>Favorite , (favorite)=> favorite.recipe)
     favorites!: Favorite[];
 
-    @OneToMany(
-        () => MealPlanItem,
-        (item) => item.recipe
-    )
+    @OneToMany( ()=> MealPlanItem , (item)=>item.recipe)
     mealPlanItems!: MealPlanItem[];
 }

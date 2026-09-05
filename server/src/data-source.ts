@@ -1,7 +1,6 @@
 import "reflect-metadata";
 import { DataSource } from "typeorm";
 import dotenv from "dotenv";
-
 import { User } from "./entities/User.js";
 import { Category } from "./entities/Category.js";
 import { Origin } from "./entities/Origin.js";
@@ -12,7 +11,6 @@ import { MealPlanItem } from "./entities/MealPlanItem.js";
 import { GroceryItem } from "./entities/GroceryItem.js";
 
 dotenv.config();
-
 export const AppDataSource = new DataSource({
     type: "mysql",
     host: process.env.DB_HOST,

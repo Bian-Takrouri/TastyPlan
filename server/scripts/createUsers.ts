@@ -1,6 +1,5 @@
 import "dotenv/config";
 import bcrypt from "bcrypt";
-
 import { AppDataSource } from "../src/data-source.js";
 import { User } from "../src/entities/User.js";
 
@@ -24,7 +23,6 @@ const users = [
 
 async function createUsers() {
     try {
-        // Check that all passwords are defined
         for (const user of users) {
             if (!user.password) {
                 throw new Error(
@@ -32,43 +30,27 @@ async function createUsers() {
                 );
             }
         }
-
-        // Connect to database
         await AppDataSource.initialize();
-
         const userRepository = AppDataSource.getRepository(User);
 
         for (const userData of users) {
-
-            // Check if user already exists
             const existingUser = await userRepository.findOne({
                 where: { email: userData.email }
             });
-
             if (existingUser) {
                 console.log(`${userData.email} already exists.`);
                 continue;
             }
-
-            // Hash password before saving
-            const passwordHash = await bcrypt.hash(
-                userData.password!,
-                10
-            );
-
-            // Create user
+            const passwordHash = await bcrypt.hash(userData.password!, 10);
             const user = userRepository.create({
                 username: userData.username,
                 email: userData.email,
                 passwordHash,
                 role: "user"
             });
-
             await userRepository.save(user);
-
             console.log(`${userData.email} created successfully.`);
         }
-
     } catch (error) {
         console.error("Failed to create users:", error);
         process.exit(1);
@@ -79,5 +61,4 @@ async function createUsers() {
         }
     }
 }
-
 createUsers();

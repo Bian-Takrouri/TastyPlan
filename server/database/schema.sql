@@ -6,24 +6,18 @@ CREATE TABLE users (
     role ENUM('admin', 'user') NOT NULL DEFAULT 'user',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
-
 CREATE TABLE categories (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE,
     description TEXT,
     image_url VARCHAR(500)
 );
-
-
 CREATE TABLE origins (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE,
     country VARCHAR(100),
     flag_url VARCHAR(500)
 );
-
-
 CREATE TABLE recipes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     meal_id VARCHAR(50) NOT NULL UNIQUE,
@@ -35,7 +29,6 @@ CREATE TABLE recipes (
     youtube_url VARCHAR(500),
     source_url VARCHAR(500),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
     FOREIGN KEY (category_id)
         REFERENCES categories(id)
         ON DELETE SET NULL,
@@ -48,8 +41,6 @@ CREATE TABLE recipes (
     INDEX idx_recipe_category (category_id),
     INDEX idx_recipe_origin (origin_id)
 );
-
-
 CREATE TABLE recipe_ingredients (
     id INT AUTO_INCREMENT PRIMARY KEY,
     recipe_id INT NOT NULL,
@@ -60,17 +51,13 @@ CREATE TABLE recipe_ingredients (
         REFERENCES recipes(id)
         ON DELETE CASCADE,
 
-    INDEX idx_recipe_id (recipe_id),
-    INDEX idx_ingredient_name (ingredient)
+    INDEX idx_recipe_id (recipe_id)
+    -- INDEX idx_ingredient_name (ingredient) / maybe i will need it in the future ^-^
 );
-
-
 CREATE TABLE meal_plan_items (
     id INT AUTO_INCREMENT PRIMARY KEY,
-
     user_id INT NOT NULL,
     recipe_id INT NOT NULL,
-
     day_of_week ENUM(
         'Monday',
         'Tuesday',
@@ -94,8 +81,6 @@ CREATE TABLE meal_plan_items (
     INDEX idx_meal_plan_user (user_id),
     INDEX idx_meal_plan_recipe (recipe_id)
 );
-
-
 CREATE TABLE grocery_items (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
@@ -103,24 +88,18 @@ CREATE TABLE grocery_items (
     quantity INT NOT NULL DEFAULT 1,
     completed BOOLEAN NOT NULL DEFAULT FALSE,
     custom BOOLEAN NOT NULL DEFAULT FALSE,
-
     FOREIGN KEY (user_id)
         REFERENCES users(id)
         ON DELETE CASCADE,
 
     UNIQUE (user_id, name),
-
     INDEX idx_grocery_user (user_id)
 );
-
 CREATE TABLE favorites (
     id INT AUTO_INCREMENT PRIMARY KEY,
-
     user_id INT NOT NULL,
     recipe_id INT NOT NULL,
-
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
     FOREIGN KEY (user_id)
         REFERENCES users(id)
         ON DELETE CASCADE,

@@ -5,22 +5,17 @@ import { seedMeals } from "./seedMeals.js";
 
 const runAllSeeders = async () => {
   try {
-    console.log("🚀 Initializing Database Connection...");
+    console.log("Initializing Database Connection...");
     await AppDataSource.initialize();
-
-    console.log("🌱 Starting Full Database Seeding Process...");
-    
-    // الترتيب إجباري لتجنب أخطاء الـ Foreign Keys
+    console.log("starting full database");
     await seedCategories();
     await seedOrigins();
     await seedMeals();
-
-    console.log("🎉 ALL SEEDING COMPLETED SUCCESSFULLY!");
+    console.log("ALL SEEDING COMPLETED SUCCESSFULLY");
     process.exit(0);
   } catch (error) {
-    console.error("❌ Error during seeding process:", error);
+    console.error("Error during seeding process:", error);
     process.exit(1);
   }
 };
-
 runAllSeeders();
