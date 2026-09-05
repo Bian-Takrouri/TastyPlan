@@ -1,91 +1,34 @@
+import "dotenv/config";
 import bcrypt from "bcrypt";
-
-import {
-    connectDatabase,
-    disconnectDatabase
-} from "../src/data-source.js";
-
+import { connectDB } from "../src/data-source.js";
 import { User } from "../src/entities/User.js";
 
-async function createAdmin() {
-
-    try {
-
-        await connectDatabase();
-
-        const existingAdmin =
-            await User.findOne({
-                email: "admin@tastyplan.com"
-            });
-
-        if (existingAdmin) {
-
-            console.log(
-                "Admin already exists!"
-            );
-
+async function createAdmin(){
+    try{
+        if(!process.env.ADMIN_PASSWORD){
+            throw new Error("ADMIN_PASSWORD is not defined in .env");
+        }
+        await connectDB();
+        const existingAdmin=await User.findOne({email:"admin@tastyplan.com"});
+        if(existingAdmin){
+            console.log("Admin already exists!");
             return;
         }
-
-        const passwordHash =
-            await bcrypt.hash(
-                "123456",
-                10
-            );
-
-        await User.create({
-            username: "admin",
-
-            email:
-                "admin@tastyplan.com",
-
+        const passwordHash=await bcrypt.hash(process.env.ADMIN_PASSWORD,10);
+        const admin=new User({
+            username:"admin",
+            email:"admin@tastyplan.com",
             passwordHash,
-
-            role: "admin"
+            role:"admin"
         });
-
-        console.log(
-            "Admin created successfully"
-        );
-
-    } catch (error) {
-
-        console.error(error);
-
-        process.exitCode = 1;
-
-    } finally {
-
-        await disconnectDatabase();
+        await admin.save();
+        console.log("Admin created successfully");
+    }catch(error){
+        console.error("Failed to create admin:",error);
+        process.exit(1);
+    }finally{
+        process.exit(0);
     }
 }
 
 createAdmin();
-
-// import bcrypt from "bcrypt";
-// import { AppDataSource } from "../src/data-source";
-// import { User } from "../src/entities/User"
-// async function createAdmin() {
-//     await AppDataSource.initialize();
-//     const userRepository = AppDataSource.getRepository(User);
-//     const existingAdmin = await userRepository.findOne({ where :{email:"admin@tastyplan.com"}})
-//     if(existingAdmin){
-//         console.log("Admin already exists!");
-//         await AppDataSource.destroy();
-//         return ;
-//     }
-//     const passwordHash = await bcrypt.hash("123456",10)
-//     const admin = userRepository.create({
-//         username:"admin",
-//         email :"admin@tastyplan.com",
-//         passwordHash ,
-//         role: "admin"
-//     })
-//     await userRepository.save(admin);
-//     console.log("Admin created successfully");
-//     await AppDataSource.destroy();
-// }
-// createAdmin().catch((error) => {
-//     console.error(error);
-//     process.exit(1);
-// })

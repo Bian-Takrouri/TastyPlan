@@ -1,23 +1,26 @@
 <div class="row justify-content-center mt-5">
-    <div class="col-md-4">
-        <div class="card shadow">
-            <div class="card-header bg-dark text-white text-center">
-                <h4>Admin Login</h4>
+    <div class="col-md-5 col-lg-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-dark text-white text-center py-3">
+                <h4 class="mb-0">Admin Login</h4>
             </div>
-            <div class="card-body">
+            <div class="card-body p-4">
                 {{#if error}}
-                <div class="alert alert-danger">{{error}}</div>
+                    <div class="alert alert-danger">{{error}}</div>
                 {{/if}}
+
                 <form action="/admin/login" method="POST">
                     <div class="mb-3">
                         <label class="form-label">Email</label>
                         <input type="email" name="email" class="form-control" required placeholder="admin@tastyplan.com">
                     </div>
-                    <div class="mb-3">
+
+                    <div class="mb-4">
                         <label class="form-label">Password</label>
                         <input type="password" name="password" class="form-control" required placeholder="••••••••">
                     </div>
-                    <button type="submit" class="btn btn-warning w-100">Login</button>
+
+                    <button type="submit" class="btn btn-warning w-100 fw-semibold">Login</button>
                 </form>
             </div>
         </div>

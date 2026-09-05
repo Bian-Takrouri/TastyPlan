@@ -1,46 +1,32 @@
 import axios from "axios";
 import type { Recipe } from "../data/meals";
-
 const URL = "http://localhost:5000/api";
-
-const api = axios.create({
-    baseURL: URL
-});
+const api = axios.create({ baseURL: URL });
 
 api.interceptors.request.use(config => {
     const token = localStorage.getItem("token");
-
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
     }
-
     return config;
 });
-
 function mapRecipe(recipe: any): Recipe {
     const meal: Recipe = {
         idMeal: String(recipe.mealId),
         strMeal: recipe.name ?? "",
-        strCategory: recipe.category?.name ?? "",
-        strArea: recipe.origin?.name ?? "",
-        strCountry: recipe.origin?.country ?? "",
+        strCategory: recipe.categoryId?.name ?? "",
+        strArea: recipe.originId?.name ?? "",
+        strCountry: recipe.originId?.country ?? "",
         strMealThumb: recipe.imageUrl ?? "",
         strInstructions: recipe.instructions ?? "",
         strYoutube: recipe.youtubeUrl ?? ""
     };
-
     (recipe.ingredients ?? [])
         .slice(0, 20)
         .forEach((item: any, index: number) => {
-            meal[
-                `strIngredient${index + 1}` as keyof Recipe
-            ] = item.ingredient ?? "";
-
-            meal[
-                `strMeasure${index + 1}` as keyof Recipe
-            ] = item.measure ?? "";
+            meal[`strIngredient${index + 1}` as keyof Recipe] = item.ingredient ?? "";
+            meal[`strMeasure${index + 1}` as keyof Recipe] = item.measure ?? "";
         });
-
     return meal;
 }
 
@@ -48,17 +34,14 @@ class MealAPI {
 
     async getMeals(): Promise<Recipe[]> {
         const response = await api.get("/recipes");
-
         return (response.data.data ?? []).map(mapRecipe);
     }
 
     async SearchTheMeal(query: string): Promise<Recipe[]> {
         const meals = await this.getMeals();
-
         if (!query.trim()) {
             return meals;
         }
-
         return meals.filter(meal =>
             meal.strMeal
                 .toLowerCase()
@@ -70,7 +53,7 @@ class MealAPI {
         const response = await api.get("/categories");
 
         return (response.data.data ?? []).map((category: any) => ({
-            idCategory: String(category.id),
+            idCategory: String(category._id),
             strCategory: category.name,
             strCategoryThumb: category.imageUrl ?? "",
             strCategoryDescription: category.description ?? ""
@@ -79,11 +62,10 @@ class MealAPI {
 
     async getOrigins() {
         const response = await api.get("/origins");
-
         return (response.data.data ?? []).map((origin: any) => ({
             strMeal: "",
             strMealThumb: "",
-            idMeal: String(origin.id),
+            idMeal: String(origin._id),
             strArea: origin.name,
             strCountry: origin.country ?? "",
             flagUrl: origin.flagUrl ?? null
@@ -92,7 +74,6 @@ class MealAPI {
 
     async getMealsByCategory(category: string): Promise<Recipe[]> {
         const meals = await this.getMeals();
-
         return meals.filter(
             meal => meal.strCategory === category
         );
@@ -100,7 +81,6 @@ class MealAPI {
 
     async getMealsByOrigin(origin: string): Promise<Recipe[]> {
         const meals = await this.getMeals();
-
         return meals.filter(
             meal => meal.strArea === origin
         );
@@ -108,11 +88,9 @@ class MealAPI {
 
     async getRandomMeal(): Promise<Recipe | null> {
         const meals = await this.getMeals();
-
         if (meals.length === 0) {
             return null;
         }
-
         return meals[
             Math.floor(Math.random() * meals.length)
         ];
@@ -120,11 +98,8 @@ class MealAPI {
 
     async getSpecificRecipe(id: string): Promise<Recipe | null> {
         const meals = await this.getMeals();
-
         return (
-            meals.find(
-                meal => meal.idMeal === String(id)
-            ) ?? null
+            meals.find(meal => meal.idMeal === String(id)) ?? null
         );
     }
 }

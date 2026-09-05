@@ -1,169 +1,78 @@
 import "./MealPlanner.css";
-
-import {
-    type mealPlannerState,
-    type mealPlannerAction
-} from "../reducer/mealPlannerReducer";
-
-import {
-    useState,
-    type Dispatch
-} from "react";
-
+import { type mealPlannerState, type mealPlannerAction } from "../reducer/mealPlannerReducer";
+import { useState, type Dispatch } from "react";
 import "./button.css";
-
 import type { Recipe } from "../data/meals";
-
 import SpecificRecipe from "./SpecificRecipe";
+import { removeMealFromPlan, clearMealPlan } from "../services/APIuser";
 
-import {
-    clearMealPlan,
-    removeMealFromPlan
-} from "../services/APIuser";
-
-const days = [
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-    "Sunday"
-];
+const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
 type Props = {
     mealPlannerState: mealPlannerState;
     dispatch: Dispatch<mealPlannerAction>;
 };
 
-export function MealPlanner({
-    mealPlannerState,
-    dispatch
-}: Props) {
+export function MealPlanner({ mealPlannerState, dispatch }: Props) {
+    const [meal, setMeal] = useState<Recipe | null>(null);
+    const [showMeal, setShowMeal] = useState(false);
 
-    const [meal, setMeal] =
-        useState<Recipe | null>(null);
-
-    const [showMeal, setShowMeal] =
-        useState(false);
-
-    const removeMeal = async (
-        day: string,
-        itemId: number
-    ) => {
+    const removeMeal = async (day: string, itemId: number) => {
         try {
             await removeMealFromPlan(itemId);
-
-            dispatch({
-                type: "Remove",
-                day
-            });
+            dispatch({ type: "Remove", day });
         } catch (error) {
-            console.error(
-                "Failed to remove meal:",
-                error
-            );
+            console.error("Failed to remove meal:", error);
         }
     };
+
     const clearWeek = async () => {
         try {
             await clearMealPlan();
-
-            dispatch({
-                type: "ClearWeek"
-            });
+            dispatch({ type: "ClearWeek" });
         } catch (error) {
-            console.error(
-                "Failed to clear meal plan:",
-                error
-            );
+            console.error("Failed to clear meal plan:", error);
         }
     };
+
     return (
         <div className="planner">
+            <div className="plannerHeader">
+                <h2>7 Days Meal Planner</h2>
+                <button className="buttonRemove" onClick={clearWeek}>Clear Week</button>
+            </div>
 
-            <h2>
-                <br />
-                7 Days Meal Planner
-            </h2>
-            <button
-                className="buttonRemove"
-                onClick={clearWeek}
-            >
-                Clear Week
-            </button>
             <div className="plannerGrid">
-
                 {days.map(day => {
-
-                    const planned =
-                        mealPlannerState[day];
+                    const planned = mealPlannerState[day];
 
                     return (
-                        <div
-                            key={day}
-                            className="dayCard"
-                        >
-
+                        <div key={day} className="dayCard">
                             <h3>{day}</h3>
-
                             {planned ? (
-
                                 <div className="plannedMeal">
-
                                     <img
-                                        src={
-                                            planned.meal
-                                                .strMealThumb
-                                        }
-                                        alt={
-                                            planned.meal
-                                                .strMeal
-                                        }
+                                        src={planned.meal.strMealThumb}
+                                        alt={planned.meal.strMeal}
                                         onClick={() => {
-                                            setMeal(
-                                                planned.meal
-                                            );
-
-                                            setShowMeal(
-                                                true
-                                            );
+                                            setMeal(planned.meal);
+                                            setShowMeal(true);
                                         }}
                                     />
-
-                                    <p>
-                                        {
-                                            planned.meal
-                                                .strMeal
-                                        }
-                                    </p>
-
+                                    <p>{planned.meal.strMeal}</p>
                                     <button
                                         className="buttonRemove"
-                                        onClick={() =>
-                                            removeMeal(
-                                                day,
-                                                planned.itemId
-                                            )
-                                        }
+                                        onClick={() => removeMeal(day, planned.itemId)}
                                     >
                                         Remove
                                     </button>
-
                                 </div>
-
                             ) : (
-
-                                <div className="noSelectedMeal">
-                                    no meal selected
-                                </div>
-
+                                <div className="noSelectedMeal">no meal selected</div>
                             )}
-
                         </div>
                     );
                 })}
-
             </div>
 
             {showMeal && meal && (
@@ -176,7 +85,6 @@ export function MealPlanner({
                     dispatch={dispatch}
                 />
             )}
-
         </div>
     );
 }

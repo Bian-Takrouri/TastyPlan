@@ -4,23 +4,21 @@
         <p class="text-muted mb-0">Add, edit, or remove recipes in the system.</p>
     </div>
     <div class="col-auto d-flex gap-2">
-        <!-- Sort Dropdown -->
         <div class="dropdown">
             <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
                 <i class="fas fa-sort me-1"></i> Sort
             </button>
             <ul class="dropdown-menu">
-                <li><a class="dropdown-menu-item dropdown-item" href="/admin/recipes?sort=desc">Newest First (أحدث)</a></li>
-                <li><a class="dropdown-menu-item dropdown-item" href="/admin/recipes?sort=asc">Oldest First (أقدم)</a></li>
+                <li><a class="dropdown-menu-item dropdown-item" href="/admin/recipes?sort=desc">Newest First</a></li>
+                <li><a class="dropdown-menu-item dropdown-item" href="/admin/recipes?sort=asc">Oldest First</a></li>
             </ul>
         </div>
-
         <button class="btn btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#addRecipeModal">
             <i class="fas fa-plus fa-sm text-white-50 me-2"></i>Add New Recipe
         </button>
     </div>
 </div>
-<!-- Recipes Table -->
+
 <div class="card shadow mb-4">
     <div class="card-header py-3 bg-white">
         <h6 class="m-0 font-weight-bold text-primary">All Recipes</h6>
@@ -41,23 +39,25 @@
                 <tbody>
                     {{#each recipes}}
                     <tr>
-                        <td>{{this.id}}</td>
+                        <td>{{add (add ../skip @index) 1}}</td>
                         <td>
                             {{#if this.imageUrl}}
-                            <img src="{{this.imageUrl}}" alt="{{this.name}}" class="rounded" style="width: 50px; height: 50px; object-fit: cover;">
+                            <img src="{{this.imageUrl}}" alt="{{this.name}}" class="rounded"
+                                style="width:50px;height:50px;object-fit:cover;">
                             {{else}}
                             <span class="badge bg-secondary">No Image</span>
                             {{/if}}
                         </td>
                         <td class="fw-bold">{{this.name}}</td>
-                        <td><span class="badge bg-info text-dark">{{this.category.name}}</span></td>
-                        <td><span class="badge bg-secondary">{{this.origin.name}}</span></td>
+                        <td><span class="badge bg-info text-dark">{{this.categoryId.name}}</span></td>
+                        <td><span class="badge bg-secondary">{{this.originId.name}}</span></td>
                         <td>
-                            <!-- Edit Button Trigger Modal -->
-                            <button class="btn btn-sm btn-outline-warning me-1" data-bs-toggle="modal" data-bs-target="#editRecipeModal{{this.id}}">
+                            <button class="btn btn-sm btn-outline-warning me-1" data-bs-toggle="modal"
+                                data-bs-target="#editRecipeModal{{this._id}}">
                                 <i class="fas fa-edit"></i> Edit
                             </button>
-                            <form action="/admin/recipes/delete/{{this.id}}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this recipe?');">
+                            <form action="/admin/recipes/delete/{{this._id}}" method="POST" class="d-inline"
+                                onsubmit="return confirm('Are you sure you want to delete this recipe?');">
                                 <button type="submit" class="btn btn-sm btn-outline-danger">
                                     <i class="fas fa-trash"></i> Delete
                                 </button>
@@ -65,13 +65,12 @@
                         </td>
                     </tr>
 
-                    <!-- Edit Recipe Modal -->
-                    <div class="modal fade" id="editRecipeModal{{this.id}}" tabindex="-1" aria-hidden="true">
+                    <div class="modal fade" id="editRecipeModal{{this._id}}" tabindex="-1" aria-hidden="true">
                         <div class="modal-dialog modal-lg">
                             <div class="modal-content">
-                                <form action="/admin/recipes/edit/{{this.id}}" method="POST">
+                                <form action="/admin/recipes/edit/{{this._id}}" method="POST">
                                     <div class="modal-header">
-                                        <h5 class="modal-title">Edit Recipe #{{this.id}}</h5>
+                                        <h5 class="modal-title">Edit Recipe #{{this._id}}</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
@@ -83,18 +82,18 @@
                                             <div class="col-md-3">
                                                 <label class="form-label">Category</label>
                                                 <select name="categoryId" class="form-select" required>
-                                                    <option value="{{this.category.id}}">{{this.category.name}}</option>
+                                                    <option value="{{this.categoryId._id}}">{{this.categoryId.name}}</option>
                                                     {{#each ../categories}}
-                                                    <option value="{{this.id}}">{{this.name}}</option>
+                                                    <option value="{{this._id}}">{{this.name}}</option>
                                                     {{/each}}
                                                 </select>
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="form-label">Origin / Cuisine</label>
                                                 <select name="originId" class="form-select" required>
-                                                    <option value="{{this.origin.id}}">{{this.origin.name}}</option>
+                                                    <option value="{{this.originId._id}}">{{this.originId.name}}</option>
                                                     {{#each ../origins}}
-                                                    <option value="{{this.id}}">{{this.name}}</option>
+                                                    <option value="{{this._id}}">{{this.name}}</option>
                                                     {{/each}}
                                                 </select>
                                             </div>
@@ -127,7 +126,6 @@
     </div>
 </div>
 
-<!-- Add Recipe Modal -->
 <div class="modal fade" id="addRecipeModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -147,7 +145,7 @@
                             <select name="categoryId" class="form-select" required>
                                 <option value="">Select Category...</option>
                                 {{#each categories}}
-                                <option value="{{this.id}}">{{this.name}}</option>
+                                <option value="{{this._id}}">{{this.name}}</option>
                                 {{/each}}
                             </select>
                         </div>
@@ -156,7 +154,7 @@
                             <select name="originId" class="form-select" required>
                                 <option value="">Select Origin...</option>
                                 {{#each origins}}
-                                <option value="{{this.id}}">{{this.name}}</option>
+                                <option value="{{this._id}}">{{this.name}}</option>
                                 {{/each}}
                             </select>
                         </div>
@@ -178,3 +176,38 @@
         </div>
     </div>
 </div>
+
+{{#if totalPages}}
+<div class="d-flex justify-content-between align-items-center mt-4">
+    <div class="text-muted">
+        Page {{currentPage}} of {{totalPages}}
+    </div>
+    <nav>
+        <ul class="pagination mb-0">
+            {{#if (gt currentPage 1)}}
+            <li class="page-item">
+                <a class="page-link" href="/admin/recipes?page={{subtract currentPage 1}}&sort={{currentSort}}">
+                    Previous
+                </a>
+            </li>
+            {{/if}}
+
+            {{#each (range 1 totalPages)}}
+            <li class="page-item {{#if (eq this ../currentPage)}}active{{/if}}">
+                <a class="page-link" href="/admin/recipes?page={{this}}&sort={{../currentSort}}">
+                    {{this}}
+                </a>
+            </li>
+            {{/each}}
+
+            {{#if (lt currentPage totalPages)}}
+            <li class="page-item">
+                <a class="page-link" href="/admin/recipes?page={{add currentPage 1}}&sort={{currentSort}}">
+                    Next
+                </a>
+            </li>
+            {{/if}}
+        </ul>
+    </nav>
+</div>
+{{/if}}
