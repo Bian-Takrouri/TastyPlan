@@ -15,14 +15,26 @@ interface AuthenticatedRequest extends Request {
 
 // Helpers & Middlewares
 function authenticateUser(req: AuthenticatedRequest, res: Response, next: NextFunction) {
-  const authHeader = req.headers.authorization;
-  if (!authHeader?.startsWith("Bearer ")) {
+  const cookieToken = req.cookies?.userToken;
+  const headerToken = req.headers.authorization?.startsWith("Bearer ")
+    ? req.headers.authorization.slice(7)
+    : null;
+
+  const token = cookieToken || headerToken;
+  if (!token) {
     return res.status(401).json({ success: false, message: "Unauthorized: Missing token" });
   }
-
   try {
-    const token = authHeader.slice(7);
-    const decoded = jwt.verify(token, JWT_SECRET) as { id: string };
+    const decoded = jwt.verify(token, JWT_SECRET) as {
+      id: string;
+      email: string;
+      role: string;
+    };
+
+    if (decoded.role !== "user") {
+      return res.status(403).json({ success: false, message: "User access required" });
+    }
+
     req.userId = decoded.id;
     next();
   } catch {
@@ -99,8 +111,16 @@ async function syncGroceryList(userId: string) {
     }
   }
 }
-
 router.use(authenticateUser);
+
+router.get("/me", async (req: AuthenticatedRequest, res: Response) => {
+  return res.json({
+    success: true,
+    user: {
+      id: req.userId
+    }
+  });
+});
 
 /* Favorites Routes */
 router.get("/favorites", async (req: AuthenticatedRequest, res: Response) => {

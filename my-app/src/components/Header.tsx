@@ -4,60 +4,82 @@ import { useNavigate } from "react-router-dom";
 import sun from "../assets/icons/sun.svg";
 import moon from "../assets/icons/moon.svg";
 import { useTheme } from "../context/ThemeContext";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { checkAuth } from "../services/APIuser";
 
 type Props = {
-    value: string;
-    searchForValue: (value: string) => void;
+  value: string;
+  searchForValue: (value: string) => void;
 };
 
 function Header({ value, searchForValue }: Props) {
-    const { theme, toggleTheme } = useTheme();
-    const navigate = useNavigate();
+  const { theme, toggleTheme } = useTheme();
+  const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-    const [isLoggedIn, setIsLoggedIn] = useState(
-        Boolean(localStorage.getItem("token"))
-    );
-
-    function handleLogout() {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        setIsLoggedIn(false);
-        navigate("/login");
+  useEffect(() => {
+    async function checkUser() {
+      const result = await checkAuth();
+      setIsLoggedIn(result);
     }
+    checkUser();
+  }, []);
 
-    function handleLogin() {
-        navigate("/login");
-    }
+  function handleLogout() {
+    window.location.href = "http://localhost:5000/logout";
+  }
 
-    return (
-        <div className="HeaderContainer">
-            <div className="logo" onClick={() => navigate("/")} style={{ cursor: "pointer" }}>
-                <img className="logoImg" src="/logo.png" alt="Logo" />
-            </div>
+  function handleLogin() {
+    window.location.href = "http://localhost:5000/login";
+  }
 
-            <SearchBar value={value} searchForValue={searchForValue} />
+  return (
+    <div className="HeaderContainer">
+      <div
+        className="logo"
+        onClick={() => navigate("/")}
+        style={{ cursor: "pointer" }}
+      >
+        <img className="logoImg" src="/logo.png" alt="Logo" />
+      </div>
 
-            <div className="mood">
-                <button className="favoriteButton" onClick={() => navigate("/")}>🏠 Home</button>
-                <button className="favoriteButton" onClick={() => navigate("/favorites")}>❤️ Favorite Meals</button>
-                <button className="favoriteButton" onClick={() => navigate("/mealPlannerPage")}>🗓️ Meal Planner</button>
-                <button className="favoriteButton" onClick={() => navigate("/grocery")}>🛒 Grocery List</button>
+      <SearchBar value={value} searchForValue={searchForValue} />
 
-                {isLoggedIn ? (
-                    <button className="favoriteButton" onClick={handleLogout}>🚪 Logout</button>
-                ) : (
-                    <button className="favoriteButton" onClick={handleLogin}>🔐 Login</button>
-                )}
+      <div className="mood">
+        <button className="favoriteButton" onClick={() => navigate("/")}>
+          🏠 Home
+        </button>
 
-                {theme === "dark" ? (
-                    <img src={sun} alt="light mode" onClick={toggleTheme} />
-                ) : (
-                    <img src={moon} alt="dark mode" onClick={toggleTheme} />
-                )}
-            </div>
-        </div>
-    );
+        <button className="favoriteButton" onClick={() => navigate("/favorites")}>
+          ❤️ Favorite Meals
+        </button>
+
+        <button className="favoriteButton" onClick={() => navigate("/mealPlannerPage")}>
+          🗓️ Meal Planner
+        </button>
+
+        <button className="favoriteButton" onClick={() => navigate("/grocery")}>
+          🛒 Grocery List
+        </button>
+
+        {isLoggedIn ? (
+          <button className="favoriteButton" onClick={handleLogout}>
+            🚪 Logout
+          </button>
+        ) : (
+          <button className="favoriteButton" onClick={handleLogin}>
+            🔐 Login
+          </button>
+        )}
+
+        {theme === "dark" ? (
+          <img src={sun} alt="light mode" onClick={toggleTheme} />
+        ) : (
+          <img src={moon} alt="dark mode" onClick={toggleTheme} />
+        )}
+      </div>
+    </div>
+  );
 }
 
 export default Header;

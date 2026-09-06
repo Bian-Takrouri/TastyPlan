@@ -1,15 +1,8 @@
 import axios from "axios";
 import type { Recipe } from "../data/meals";
 const URL = "http://localhost:5000/api";
-const api = axios.create({ baseURL: URL });
+const api = axios.create({ baseURL: URL , withCredentials:true });
 
-api.interceptors.request.use(config => {
-    const token = localStorage.getItem("token");
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-});
 function mapRecipe(recipe: any): Recipe {
     const meal: Recipe = {
         idMeal: String(recipe.mealId),

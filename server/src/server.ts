@@ -12,6 +12,7 @@ import originsRoutes from "./routes/origins.js";
 import recipesRoutes from "./routes/recipes.js";
 import adminRoutes from "./routes/admin.js";
 import userApi from "./routes/userApi.js";
+import userLoginRoutes from "./routes/userLogin.js";
 
 dotenv.config();
 
@@ -48,7 +49,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/auth", authRoutes);
-
+app.use("/",userLoginRoutes);
 app.use("/api/categories", categoriesRoutes);
 app.use("/api/origins", originsRoutes);
 app.use("/api/recipes", recipesRoutes);

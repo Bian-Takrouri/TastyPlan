@@ -17,7 +17,7 @@ export function MealPlanner({ mealPlannerState, dispatch }: Props) {
     const [meal, setMeal] = useState<Recipe | null>(null);
     const [showMeal, setShowMeal] = useState(false);
 
-    const removeMeal = async (day: string, itemId: number) => {
+    const removeMeal = async (day: string, itemId: string) => {
         try {
             await removeMealFromPlan(itemId);
             dispatch({ type: "Remove", day });

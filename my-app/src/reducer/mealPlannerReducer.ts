@@ -2,7 +2,7 @@ import type { Recipe } from "../data/meals";
 
 export type PlannedMeal = {
     meal: Recipe;
-    itemId: number;
+    itemId: string;
 };
 
 export type mealPlannerState = {
@@ -10,7 +10,7 @@ export type mealPlannerState = {
 };
 
 export type mealPlannerAction =
-    | { type: "Add"; day: string; meal: Recipe; itemId: number }
+    | { type: "Add"; day: string; meal: Recipe; itemId: string }
     | { type: "Remove"; day: string }
     | { type: "ClearWeek" };
 

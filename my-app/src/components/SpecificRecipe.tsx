@@ -1,5 +1,5 @@
-import type { Recipe } from "../data/meals";
 import { useEffect, useState, type Dispatch } from "react";
+import type { Recipe } from "../data/meals";
 import "./RecipeModal.css";
 import "./button.css";
 import fullHeart from "../assets/icons/fullHeart.svg";
@@ -21,9 +21,8 @@ function SpecificRecipe({ meal, closeModal, dispatch }: Props) {
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        if (!meal || !localStorage.getItem("token")) return;
+        if (!meal) return;
         const currentMeal = meal;
-
         async function loadFavoriteStatus() {
             try {
                 const favorites = await getFavorites();
@@ -32,7 +31,6 @@ function SpecificRecipe({ meal, closeModal, dispatch }: Props) {
                 console.error("Failed to load favorite status:", error);
             }
         }
-
         loadFavoriteStatus();
     }, [meal]);
 
@@ -44,26 +42,17 @@ function SpecificRecipe({ meal, closeModal, dispatch }: Props) {
     for (let i = 1; i <= 20; i++) {
         const ingredient = currentMeal[`strIngredient${i}` as keyof Recipe];
         const measure = currentMeal[`strMeasure${i}` as keyof Recipe];
-
-        if (ingredient?.trim()) {
+        if (typeof ingredient === "string" && ingredient.trim()) {
             ingredients.push({
                 ingredient,
-                measure: measure ?? ""
+                measure: typeof measure === "string" ? measure : ""
             });
         }
     }
 
-    const stepByStep = currentMeal.strInstructions
-        .split(".")
-        .map(step => step.trim())
-        .filter(Boolean);
+    const stepByStep = currentMeal.strInstructions.split(".").map(step => step.trim()).filter(Boolean);
 
     async function handleFavorite() {
-        if (!localStorage.getItem("token")) {
-            alert("Please login first.");
-            return;
-        }
-
         try {
             setLoading(true);
             const result = await toggleFavorite(currentMeal.idMeal);
@@ -77,23 +66,15 @@ function SpecificRecipe({ meal, closeModal, dispatch }: Props) {
 
     async function handleAddToMealPlan() {
         if (!selectedDay) return;
-
-        if (!localStorage.getItem("token")) {
-            alert("Please login first.");
-            return;
-        }
-
         try {
             setLoading(true);
             const result = await addMealToPlan(currentMeal.idMeal, selectedDay);
-
             dispatch({
                 type: "Add",
                 day: selectedDay,
                 meal: currentMeal,
-                itemId: result.data?.id ?? result.id
+                itemId: String(result.data?.id ?? result.id)
             });
-
             setSelectedDay("");
         } catch (error) {
             console.error("Failed to add meal to plan:", error);
@@ -106,24 +87,13 @@ function SpecificRecipe({ meal, closeModal, dispatch }: Props) {
         <div className="container">
             <div className="modal">
                 <button className="close" onClick={closeModal}>X</button>
-
                 <div className="imageContainer">
                     <img src={currentMeal.strMealThumb} alt={currentMeal.strMeal} />
-                    <button
-                        type="button"
-                        className="heartIcon"
-                        onClick={handleFavorite}
-                        disabled={loading}
-                    >
-                        <img
-                            src={isFavorite ? fullHeart : emptyHeart}
-                            alt="Favorite"
-                        />
+                    <button type="button" className="heartIcon" onClick={handleFavorite} disabled={loading}>
+                        <img src={isFavorite ? fullHeart : emptyHeart} alt="Favorite" />
                     </button>
                 </div>
-
                 <h2>{currentMeal.strMeal}</h2>
-
                 <h3>Ingredients:</h3>
                 <ul className="ingredientsList">
                     {ingredients.map((item, index) => (
@@ -135,45 +105,26 @@ function SpecificRecipe({ meal, closeModal, dispatch }: Props) {
                         </li>
                     ))}
                 </ul>
-
                 {currentMeal.strYoutube && (
-                    <a
-                        href={currentMeal.strYoutube}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="youtubeButton"
-                    >
+                    <a href={currentMeal.strYoutube} target="_blank" rel="noreferrer" className="youtubeButton">
                         ▶️ YouTube 🔴 Watch on YouTube
                     </a>
                 )}
-
                 <div className="mealPlan">
-                    <select
-                        className="selectDay"
-                        value={selectedDay}
-                        onChange={event => setSelectedDay(event.target.value)}
-                    >
+                    <select className="selectDay" value={selectedDay} onChange={event => setSelectedDay(event.target.value)} disabled={loading}>
                         <option value="">Select a day</option>
                         {days.map(day => (
                             <option key={day} value={day}>{day}</option>
                         ))}
                     </select>
-
-                    <button
-                        className="addButton"
-                        onClick={handleAddToMealPlan}
-                        disabled={loading}
-                    >
+                    <button className="addButton" onClick={handleAddToMealPlan} disabled={loading}>
                         Add to Meal Plan
                     </button>
                 </div>
-
                 <h3>Category:</h3>
                 <p>{currentMeal.strCategory}</p>
-
                 <h3>Origin:</h3>
                 <p>{currentMeal.strArea}</p>
-
                 <h3>Instructions:</h3>
                 <ol>
                     {stepByStep.map((step, index) => (

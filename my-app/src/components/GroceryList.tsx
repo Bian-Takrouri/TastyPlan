@@ -14,32 +14,22 @@ export function GroceryList({ mealPlannerState }: Props) {
 
   const generatedItems = useMemo(() => {
     const ingredientCounts = new Map<string, number>();
-
     for (const item of Object.values(mealPlannerState)) {
       if (!item) continue;
-
       for (let i = 1; i <= 20; i++) {
         const ingredient = item.meal[`strIngredient${i}` as keyof typeof item.meal];
-
         if (ingredient && String(ingredient).trim()) {
           const name = String(ingredient).trim();
           const key = name.toLowerCase();
-
           ingredientCounts.set(key, (ingredientCounts.get(key) ?? 0) + 1);
         }
       }
     }
-
     return Array.from(ingredientCounts.entries()).map(([name, quantity]) => ({ name, quantity }));
   }, [mealPlannerState]);
 
   useEffect(() => {
     async function loadItems() {
-      if (!localStorage.getItem("token")) {
-        setLoading(false);
-        return;
-      }
-
       try {
         const data = await getGroceryItems();
         setItems(data);
@@ -49,17 +39,17 @@ export function GroceryList({ mealPlannerState }: Props) {
         setLoading(false);
       }
     }
-    loadItems();}, []);
+    loadItems();
+  }, []);
 
   useEffect(() => {
     async function syncGeneratedItems() {
-      if (!localStorage.getItem("token") || syncing || generatedItems.length === 0) return;
+      if (syncing || generatedItems.length === 0) return;
 
       setSyncing(true);
-
-      const generatedMap = new Map(generatedItems.map((item) => [item.name.toLowerCase(), item]));
-      const generatedExisting = items.filter((item) => !item.custom);
-      const existingMap = new Map(generatedExisting.map((item) => [item.name.toLowerCase(), item]));
+      const generatedMap = new Map(generatedItems.map(item => [item.name.toLowerCase(), item]));
+      const generatedExisting = items.filter(item => !item.custom);
+      const existingMap = new Map(generatedExisting.map(item => [item.name.toLowerCase(), item]));
 
       try {
         const operations: Promise<any>[] = [];
@@ -76,9 +66,7 @@ export function GroceryList({ mealPlannerState }: Props) {
         }
 
         for (const existing of generatedExisting) {
-          const key = existing.name.toLowerCase();
-
-          if (!generatedMap.has(key)) {
+          if (!generatedMap.has(existing.name.toLowerCase())) {
             operations.push(deleteGroceryItem(existing.id));
           }
         }
@@ -86,9 +74,7 @@ export function GroceryList({ mealPlannerState }: Props) {
         if (operations.length === 0) return;
 
         await Promise.all(operations);
-
-        const refreshed = await getGroceryItems();
-        setItems(refreshed);
+        setItems(await getGroceryItems());
       } catch (error) {
         console.error("Failed to sync grocery items:", error);
       } finally {
@@ -96,15 +82,13 @@ export function GroceryList({ mealPlannerState }: Props) {
       }
     }
 
-    if (!loading) {
-      syncGeneratedItems();
-    }
+    if (!loading) syncGeneratedItems();
   }, [generatedItems, loading]);
 
   async function toggleCheckbox(item: GroceryItem) {
     try {
       const updated = await updateGroceryItem(item.id, !item.completed);
-      setItems((previous) => previous.map((current) => (current.id === updated.id ? updated : current)));
+      setItems(previous => previous.map(current => current.id === updated.id ? updated : current));
     } catch (error) {
       console.error("Failed to update grocery item:", error);
     }
@@ -114,8 +98,7 @@ export function GroceryList({ mealPlannerState }: Props) {
     const name = customItem.trim();
     if (!name) return;
 
-    const exists = items.some((item) => item.name.toLowerCase() === name.toLowerCase());
-
+    const exists = items.some(item => item.name.toLowerCase() === name.toLowerCase());
     if (exists) {
       setCustomItem("");
       return;
@@ -123,35 +106,27 @@ export function GroceryList({ mealPlannerState }: Props) {
 
     try {
       const item = await addGroceryItem(name, true, 1);
-      setItems((previous) => [...previous, item]);
+      setItems(previous => [...previous, item]);
       setCustomItem("");
     } catch (error) {
       console.error("Failed to add grocery item:", error);
     }
   }
 
-  async function deleteItem(id: number) {
+  async function deleteItem(id: string) {
     try {
       await deleteGroceryItem(id);
-      setItems((previous) => previous.filter((item) => item.id !== id));
+      setItems(previous => previous.filter(item => item.id !== id));
     } catch (error) {
       console.error("Failed to delete grocery item:", error);
     }
   }
 
-  const filteredItems = items.filter((item) => {
+  const filteredItems = items.filter(item => {
     if (filter === "completed") return item.completed;
     if (filter === "remaining") return !item.completed;
     return true;
   });
-
-  if (!localStorage.getItem("token")) {
-    return (
-      <div className="groceryContainer">
-        <h2>Please login to use your grocery list.</h2>
-      </div>
-    );
-  }
 
   return (
     <div className="groceryContainer">
@@ -182,32 +157,21 @@ export function GroceryList({ mealPlannerState }: Props) {
         </div>
       ) : (
         <ul className="groceryList">
-          {filteredItems.map((item) => (
+          {filteredItems.map(item => (
             <li key={item.id} className={item.completed ? "completed" : ""}>
               <label>
-                <input
-                  type="checkbox"
-                  checked={item.completed}
-                  onChange={() => toggleCheckbox(item)}
-                />
+                <input type="checkbox" checked={item.completed} onChange={() => toggleCheckbox(item)} />
                 {item.name}
                 {item.quantity > 1 && ` × ${item.quantity}`}
               </label>
-
-              <button className="deleteGrocery" onClick={() => deleteItem(item.id)}>
-                🗑️
-              </button>
+              <button className="deleteGrocery" onClick={() => deleteItem(item.id)}>🗑️</button>
             </li>
           ))}
         </ul>
       )}
 
       <div className="addGrocery">
-        <input
-          value={customItem}
-          onChange={(event) => setCustomItem(event.target.value)}
-          placeholder="Add grocery item"
-        />
+        <input value={customItem} onChange={event => setCustomItem(event.target.value)} placeholder="Add grocery item" />
         <button onClick={addItem}>Add</button>
       </div>
     </div>

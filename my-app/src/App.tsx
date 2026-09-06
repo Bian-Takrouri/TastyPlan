@@ -5,21 +5,19 @@ import Header from "./components/Header";
 import Home from "./pages/Home";
 import { CategoryFilter } from "./components/CategoryFilter";
 import { OriginFilter } from "./components/OriginFilter";
-import {mealPlannerReducer,initialState} from "./reducer/mealPlannerReducer";
-import Login from "./pages/Login";
+import { mealPlannerReducer, initialState } from "./reducer/mealPlannerReducer";
 import { useTheme } from "./context/ThemeContext";
 import Favorites from "./pages/Favorites";
 import Grocery from "./pages/Grocery";
 import MealPlannerPage from "./pages/MealPlannerPage";
 import { getMealPlan } from "./services/APIuser";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
     const { theme } = useTheme();
-
     const [searchMeal, setSearchMeal] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("");
     const [selectedOrigin, setSelectedOrigin] = useState("");
-
     const [mealPlannerState, dispatch] = useReducer(
         mealPlannerReducer,
         initialState
@@ -27,22 +25,13 @@ function App() {
 
     useEffect(() => {
         async function loadMealPlan() {
-            const token = localStorage.getItem("token");
-
-            if (!token) {
-                return;
-            }
 
             try {
                 const items = await getMealPlan();
 
                 for (const item of items) {
                     const recipe = item.recipe;
-
-                    if (!recipe) {
-                        continue;
-                    }
-
+                    if (!recipe) continue;
                     const meal: any = {
                         idMeal: String(recipe.mealId),
                         strMeal: recipe.name ?? "",
@@ -56,17 +45,10 @@ function App() {
 
                     (recipe.ingredients ?? [])
                         .slice(0, 20)
-                        .forEach(
-                            (ingredient: any, index: number) => {
-                                meal[
-                                    `strIngredient${index + 1}`
-                                ] = ingredient.ingredient ?? "";
-
-                                meal[
-                                    `strMeasure${index + 1}`
-                                ] = ingredient.measure ?? "";
-                            }
-                        );
+                        .forEach((ingredient: any, index: number) => {
+                            meal[`strIngredient${index + 1}`] = ingredient.ingredient ?? "";
+                            meal[`strMeasure${index + 1}`] = ingredient.measure ?? "";
+                        });
 
                     dispatch({
                         type: "Add",
@@ -76,10 +58,7 @@ function App() {
                     });
                 }
             } catch (error) {
-                console.error(
-                    "Failed to load meal plan:",
-                    error
-                );
+                console.error("Failed to load meal plan:", error);
             }
         }
 
@@ -106,30 +85,24 @@ function App() {
 
     return (
         <div className={`hallApp ${theme}`}>
-
             <Header
                 value={searchMeal}
                 searchForValue={handleSearch}
             />
 
             <Routes>
-
                 <Route
                     path="/"
                     element={
                         <>
-                            <h1 className="CategoriesName">
-                                Explore by Category
-                            </h1>
+                            <h1 className="CategoriesName">Explore by Category</h1>
 
                             <CategoryFilter
                                 value={selectedCategory}
                                 onCategorySelect={handleCategory}
                             />
 
-                            <h1 className="OriginsName">
-                                Explore by Cuisine
-                            </h1>
+                            <h1 className="OriginsName">Explore by Cuisine</h1>
 
                             <OriginFilter
                                 value={selectedOrigin}
@@ -145,35 +118,33 @@ function App() {
                         </>
                     }
                 />
-                <Route path="/login" element={<Login />} />
                 <Route
                     path="/grocery"
                     element={
-                        <Grocery
-                            mealPlannerState={mealPlannerState}
-                        />
+                        <ProtectedRoute>
+                            <Grocery mealPlannerState={mealPlannerState} />
+                        </ProtectedRoute>
                     }
                 />
-
                 <Route
                     path="/favorites"
                     element={
-                        <Favorites
-                            dispatch={dispatch}
-                        />
+                        <ProtectedRoute>
+                            <Favorites dispatch={dispatch} />
+                        </ProtectedRoute>
                     }
                 />
-
                 <Route
                     path="/mealPlannerPage"
                     element={
-                        <MealPlannerPage
-                            mealPlannerState={mealPlannerState}
-                            dispatch={dispatch}
-                        />
+                        <ProtectedRoute>
+                            <MealPlannerPage
+                                mealPlannerState={mealPlannerState}
+                                dispatch={dispatch}
+                            />
+                        </ProtectedRoute>
                     }
                 />
-
             </Routes>
         </div>
     );
