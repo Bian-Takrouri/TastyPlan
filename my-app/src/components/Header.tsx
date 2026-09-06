@@ -4,7 +4,8 @@ import { useNavigate } from "react-router-dom";
 import sun from "../assets/icons/sun.svg";
 import moon from "../assets/icons/moon.svg";
 import { useTheme } from "../context/ThemeContext";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { checkAuth } from "../services/APIuser";
 
 type Props = {
     value: string;
@@ -14,20 +15,22 @@ type Props = {
 function Header({ value, searchForValue }: Props) {
     const { theme, toggleTheme } = useTheme();
     const navigate = useNavigate();
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-    const [isLoggedIn, setIsLoggedIn] = useState(
-        Boolean(localStorage.getItem("token"))
-    );
+    useEffect(() => {
+        async function checkUser() {
+            const result = await checkAuth();
+            setIsLoggedIn(result);
+        }
+        checkUser();
+    }, []);
 
     function handleLogout() {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        setIsLoggedIn(false);
-        navigate("/login");
+        window.location.href = "http://localhost:5000/logout";
     }
 
     function handleLogin() {
-        navigate("/login");
+        window.location.href = "http://localhost:5000/login";
     }
 
     return (

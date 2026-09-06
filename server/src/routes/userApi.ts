@@ -8,26 +8,59 @@ import { Recipe } from "../entities/Recipe.js";
 import { User } from "../entities/User.js";
 
 const router = Router();
+
 const JWT_SECRET = process.env.JWT_SECRET || "your_super_secret_jwt_key";
 
 interface AuthenticatedRequest extends Request {
     userId?: number;
 }
-function authenticateUser(req: AuthenticatedRequest, res: Response, next: NextFunction) {
-    const authHeader = req.headers.authorization;
-    if (!authHeader?.startsWith("Bearer ")) {
-        return res.status(401).json({ success: false, message: "Unauthorized: Missing token" });
+
+function authenticateUser( req: AuthenticatedRequest, res: Response, next: NextFunction ) {
+    const cookieToken = req.cookies?.userToken;
+    const headerToken = req.headers.authorization?.startsWith("Bearer ")
+        ? req.headers.authorization.slice(7)
+        : null;
+
+    const token = cookieToken || headerToken;
+
+    if (!token) {
+        return res.status(401).json({
+            success: false,
+            message: "Unauthorized: Missing token"
+        });
     }
     try {
-        const token = authHeader.slice(7);
-        const decoded = jwt.verify(token, JWT_SECRET) as { id: number };
+        const decoded = jwt.verify(token, JWT_SECRET) as {
+            id: number;
+            email: string;
+            role: "admin" | "user";
+        };
+        if (decoded.role !== "user") {
+            return res.status(403).json({
+                success: false,
+                message: "User access required"
+            });
+        }
+
         req.userId = decoded.id;
         next();
     } catch {
-        return res.status(403).json({ success: false, message: "Invalid or expired token" });
+        return res.status(403).json({
+            success: false,
+            message: "Invalid or expired token"
+        });
     }
 }
+
 router.use(authenticateUser);
+router.get("/me", async (req: AuthenticatedRequest, res: Response) => {
+    return res.json({
+        success: true,
+        user: {
+            id: req.userId
+        }
+    });
+});
 
 /* Favorites ^-^ */
 router.get("/favorites", async (req: AuthenticatedRequest, res: Response) => {

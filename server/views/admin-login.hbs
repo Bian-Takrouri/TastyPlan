@@ -1,28 +1,40 @@
-<div class="row justify-content-center mt-5">
-    <div class="col-md-5 col-lg-4">
-        <div class="card shadow-sm border-0">
-            <div class="card-header bg-dark text-white text-center py-3">
-                <h4 class="mb-0">Admin Login</h4>
-            </div>
-            <div class="card-body p-4">
-                {{#if error}}
-                    <div class="alert alert-danger">{{error}}</div>
-                {{/if}}
-
-                <form action="/admin/login" method="POST">
-                    <div class="mb-3">
-                        <label class="form-label">Email</label>
-                        <input type="email" name="email" class="form-control" required placeholder="admin@tastyplan.com">
-                    </div>
-
-                    <div class="mb-4">
-                        <label class="form-label">Password</label>
-                        <input type="password" name="password" class="form-control" required placeholder="••••••••">
-                    </div>
-
-                    <button type="submit" class="btn btn-warning w-100 fw-semibold">Login</button>
-                </form>
-            </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TastyPlan - Admin Login</title>
+    <style>
+        *{box-sizing:border-box}
+        body{margin:0;min-height:100vh;display:flex;justify-content:center;align-items:center;font-family:Arial,sans-serif;background:#f5f5f5}
+        .login-container{width:380px;padding:35px;background:white;border-radius:12px;box-shadow:0 5px 20px rgba(0,0,0,.12)}
+        h1{text-align:center;margin-bottom:25px;color:#333}
+        .form-group{margin-bottom:18px}
+        label{display:block;margin-bottom:7px;font-weight:bold;color:#333}
+        input{width:100%;padding:11px;border:1px solid #ccc;border-radius:6px;font-size:15px}
+        input:focus{outline:none;border-color:#4f7942}
+        button{width:100%;padding:12px;border:none;border-radius:6px;background:#4f7942;color:white;font-size:16px;cursor:pointer}
+        button:hover{background:#3f6335}
+        .error{margin-bottom:15px;padding:10px;color:#b00020;background:#ffe8ec;border-radius:6px;text-align:center}
+    </style>
+</head>
+<body>
+<div class="login-container">
+    <h1>TastyPlan Admin</h1>
+    {{#if error}}
+        <div class="error">{{error}}</div>
+    {{/if}}
+    <form action="/admin/login" method="POST">
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="Enter admin email" required>
         </div>
-    </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Enter password" required>
+        </div>
+        <button type="submit">Login</button>
+    </form>
 </div>
+</body>
+</html>

@@ -3,13 +3,15 @@ import type { Recipe } from "../data/meals";
 
 const URL = "http://localhost:5000/api/user";
 
-function getHeaders() {
-    const token = localStorage.getItem("token");
-    return token ? {
-        Authorization: `Bearer ${token}`
-    } : {};
+const api = axios.create({ baseURL: URL,withCredentials: true });
+export async function checkAuth() {
+    try {
+        const response = await api.get("/me");
+        return response.data.success;
+    } catch {
+        return false;
+    }
 }
-
 function mapRecipe(recipe: any): Recipe {
     const meal: Recipe = {
         idMeal: String(recipe.mealId),
@@ -35,66 +37,38 @@ function mapRecipe(recipe: any): Recipe {
 
 
 export async function getFavorites(): Promise<Recipe[]> {
-    const response =
-        await axios.get(`${URL}/favorites`,
-            {
-                headers: getHeaders()
-            }
-        );
-
+    const response =await api.get(`/favorites`);
     return (response.data.data ?? []).map(mapRecipe);
 }
 
 export async function toggleFavorite(mealId: string) {
-    const response = await axios.post(`${URL}/favorites/toggle`,
-        { mealId },
-        {
-            headers: getHeaders()
-        }
-    );
+    const response = await api.post(`/favorites/toggle`,
+        { mealId });
     return response.data;
 }
 
 export async function getMealPlan() {
-    const response = await axios.get(`${URL}/meal-plan`,
-        {
-            headers: getHeaders()
-        }
-    );
-
+    const response = await api.get(`/meal-plan`);
     return response.data.data ?? [];
 }
 
 export async function addMealToPlan(mealId: string, dayOfWeek: string) {
-    const response = await axios.post(`${URL}/meal-plan/item`,
+    const response = await api.post(`/meal-plan/item`,
         {
             mealId,
             dayOfWeek
-        },
-        {
-            headers: getHeaders()
         }
     );
-
     return response.data;
 }
 
 export async function removeMealFromPlan(id: number) {
-    const response = await axios.delete(`${URL}/meal-plan/item/${id}`,
-        {
-            headers: getHeaders()
-        }
-    );
-
+    const response = await api.delete(`/meal-plan/item/${id}`);
     return response.data;
 }
 
 export async function clearMealPlan() {
-    const response = await axios.delete(`${URL}/meal-plan`,
-        {
-            headers: getHeaders()
-        }
-    );
+    const response = await api.delete(`/meal-plan`);
     return response.data;
 }
 
@@ -109,11 +83,7 @@ export type GroceryItem = {
 
 export async function getGroceryItems():
     Promise<GroceryItem[]> {
-    const response = await axios.get(`${URL}/grocery`,
-        {
-            headers: getHeaders()
-        }
-    );
+    const response = await api.get(`/grocery`);
     return response.data.data ?? [];
 }
 
@@ -122,16 +92,12 @@ export async function addGroceryItem(
     custom = true,
     quantity = 1
 ) {
-    const response = await axios.post(
-        `${URL}/grocery`,
+    const response = await api.post(`/grocery`,
         {
             name,
             custom,
             quantity,
             completed: false
-        },
-        {
-            headers: getHeaders()
         }
     );
 
@@ -139,23 +105,16 @@ export async function addGroceryItem(
 }
 
 export async function updateGroceryItem(id: number, completed: boolean, quantity?: number) {
-    const response = await axios.patch(`${URL}/grocery/${id}`,
+    const response = await api.patch(`/grocery/${id}`,
         {
             completed,
             ...(quantity !== undefined ? { quantity } : {})
-        },
-        {
-            headers: getHeaders()
         }
     );
     return response.data.data;
 }
 
 export async function deleteGroceryItem(id: number) {
-    const response = await axios.delete(`${URL}/grocery/${id}`,
-        {
-            headers: getHeaders()
-        }
-    );
+    const response = await api.delete(`/grocery/${id}`);
     return response.data;
 }

@@ -13,7 +13,7 @@ import originsRoutes from "./routes/origins.js";
 import recipesRoutes from "./routes/recipes.js";
 import adminRoutes from "./routes/admin.js";
 import userApi from "./routes/userApi.js";
-
+import userLogin from "./routes/userLogin.js";
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -47,7 +47,7 @@ app.use(cookieParser());
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.use("/", userLogin);
 app.use("/api/auth", authRoutes);
 
 app.use("/api/categories", categoriesRoutes);

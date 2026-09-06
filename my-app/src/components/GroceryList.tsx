@@ -3,7 +3,7 @@ import type { mealPlannerState } from "../reducer/mealPlannerReducer";
 import { addGroceryItem, deleteGroceryItem, getGroceryItems, updateGroceryItem, type GroceryItem } from "../services/APIuser";
 import "./GroceryList.css";
 
-type Props = { mealPlannerState: mealPlannerState; };
+type Props = { mealPlannerState: mealPlannerState };
 
 export function GroceryList({ mealPlannerState }: Props) {
     const [filter, setFilter] = useState<"all" | "remaining" | "completed">("all");
@@ -30,10 +30,6 @@ export function GroceryList({ mealPlannerState }: Props) {
 
     useEffect(() => {
         async function loadItems() {
-            if (!localStorage.getItem("token")) {
-                setLoading(false);
-                return;
-            }
             try {
                 const data = await getGroceryItems();
                 setItems(data);
@@ -48,31 +44,57 @@ export function GroceryList({ mealPlannerState }: Props) {
 
     useEffect(() => {
         async function syncGeneratedItems() {
-            if (!localStorage.getItem("token") || syncing) return;
+            if (syncing) return;
+
             setSyncing(true);
-            const generatedMap = new Map(generatedItems.map(item => [item.name.toLowerCase(), item]));
+
+            const generatedMap = new Map(
+                generatedItems.map(item => [item.name.toLowerCase(), item])
+            );
+
             const generatedExisting = items.filter(item => !item.custom);
-            const existingMap = new Map(generatedExisting.map(item => [item.name.toLowerCase(), item]));
+
+            const existingMap = new Map(
+                generatedExisting.map(item => [item.name.toLowerCase(), item])
+            );
 
             try {
                 const operations: Promise<any>[] = [];
+
                 for (const generated of generatedItems) {
                     const key = generated.name.toLowerCase();
                     const existing = existingMap.get(key);
+
                     if (!existing) {
-                        operations.push(addGroceryItem(generated.name, false, generated.quantity));
+                        operations.push(
+                            addGroceryItem(generated.name, false, generated.quantity)
+                        );
                     } else if (existing.quantity !== generated.quantity) {
-                        operations.push(updateGroceryItem(existing.id, existing.completed, generated.quantity));
+                        operations.push(
+                            updateGroceryItem(
+                                existing.id,
+                                existing.completed,
+                                generated.quantity
+                            )
+                        );
                     }
                 }
+
                 for (const existing of generatedExisting) {
                     const key = existing.name.toLowerCase();
+
                     if (!generatedMap.has(key)) {
                         operations.push(deleteGroceryItem(existing.id));
                     }
                 }
-                if (operations.length === 0) return;
+
+                if (operations.length === 0) {
+                    setSyncing(false);
+                    return;
+                }
+
                 await Promise.all(operations);
+
                 const refreshed = await getGroceryItems();
                 setItems(refreshed);
             } catch (error) {
@@ -81,13 +103,21 @@ export function GroceryList({ mealPlannerState }: Props) {
                 setSyncing(false);
             }
         }
-        if (!loading) syncGeneratedItems();
+
+        if (!loading) {
+            syncGeneratedItems();
+        }
     }, [generatedItems, loading]);
 
     async function toggleCheckbox(item: GroceryItem) {
         try {
             const updated = await updateGroceryItem(item.id, !item.completed);
-            setItems(previous => previous.map(current => current.id === updated.id ? updated : current));
+
+            setItems(previous =>
+                previous.map(current =>
+                    current.id === updated.id ? updated : current
+                )
+            );
         } catch (error) {
             console.error("Failed to update grocery item:", error);
         }
@@ -95,12 +125,18 @@ export function GroceryList({ mealPlannerState }: Props) {
 
     async function addItem() {
         const name = customItem.trim();
+
         if (!name) return;
-        const exists = items.some(item => item.name.toLowerCase() === name.toLowerCase());
+
+        const exists = items.some(
+            item => item.name.toLowerCase() === name.toLowerCase()
+        );
+
         if (exists) {
             setCustomItem("");
             return;
         }
+
         try {
             const item = await addGroceryItem(name, true, 1);
             setItems(previous => [...previous, item]);
@@ -125,20 +161,20 @@ export function GroceryList({ mealPlannerState }: Props) {
         return true;
     });
 
-    if (!localStorage.getItem("token")) {
-        return <div className="groceryContainer"><h2>Please login to use your grocery list.</h2></div>;
-    }
-
     return (
         <div className="groceryContainer">
             <h2>🛒 Grocery List</h2>
+
             <div className="filterButtons">
                 <button onClick={() => setFilter("all")}>All</button>
                 <button onClick={() => setFilter("remaining")}>Remaining</button>
                 <button onClick={() => setFilter("completed")}>Completed</button>
             </div>
+
             {loading ? (
-                <div className="emptyGrocery"><p>Loading grocery list...</p></div>
+                <div className="emptyGrocery">
+                    <p>Loading grocery list...</p>
+                </div>
             ) : filteredItems.length === 0 ? (
                 <div className="emptyGrocery">
                     {items.length === 0 ? (
@@ -155,19 +191,37 @@ export function GroceryList({ mealPlannerState }: Props) {
             ) : (
                 <ul className="groceryList">
                     {filteredItems.map(item => (
-                        <li key={item.id} className={item.completed ? "completed" : ""}>
+                        <li
+                            key={item.id}
+                            className={item.completed ? "completed" : ""}
+                        >
                             <label>
-                                <input type="checkbox" checked={item.completed} onChange={() => toggleCheckbox(item)} />
+                                <input
+                                    type="checkbox"
+                                    checked={item.completed}
+                                    onChange={() => toggleCheckbox(item)}
+                                />
                                 {item.name}
                                 {item.quantity > 1 && ` × ${item.quantity}`}
                             </label>
-                            <button className="deleteGrocery" onClick={() => deleteItem(item.id)}>🗑️</button>
+
+                            <button
+                                className="deleteGrocery"
+                                onClick={() => deleteItem(item.id)}
+                            >
+                                🗑️
+                            </button>
                         </li>
                     ))}
                 </ul>
             )}
+
             <div className="addGrocery">
-                <input value={customItem} onChange={event => setCustomItem(event.target.value)} placeholder="Add grocery item" />
+                <input
+                    value={customItem}
+                    onChange={event => setCustomItem(event.target.value)}
+                    placeholder="Add grocery item"
+                />
                 <button onClick={addItem}>Add</button>
             </div>
         </div>
